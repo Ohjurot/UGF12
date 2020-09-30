@@ -10,11 +10,24 @@
 #include <UGF12/DirectX/XCmdQueue.h>
 #include <UGF12/DirectX/XCmdList.h>
 
-#include <UGF12/RenderIO/Framebuffer.h>
+#include <UGF12/RenderIO/LayerManager/ILayerImpl.h>
+#include <UGF12/RenderIO/LayerManager/Layer.h>
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
+class Impl : public GxRenderIO::LayerStack::ILayerImpl {
+	public:
+		void Init() {
+
+		}
+
+		void Destroy() {
+
+		}
+};
+
 
 /// <summary>
 /// Windows entry point
@@ -59,6 +72,10 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 
 		// Show window
 		ptrWindow->setWindowVisability(TRUE);
+
+
+		Impl imp;
+		GxRenderIO::LayerStack::Layer lay(&imp);
 
 		// Do window loop
 		while (ptrWindow->isValid()) {

@@ -4,6 +4,9 @@
 GxDirect::XCmdList::XCmdList(GxDirect::XContext* ptrContext, GxDirect::XCmdQueue* ptrCmdQue) :
 	m_ptrCmdQue(ptrCmdQue)
 {
+	// Ref counting
+	m_ptrCmdQue->IncRef();
+
 	HRESULT hr;
 
 	// Get device
@@ -28,6 +31,9 @@ GxDirect::XCmdList::XCmdList(GxDirect::XContext* ptrContext, GxDirect::XCmdQueue
 }
 
 GxDirect::XCmdList::~XCmdList() {
+	// Ref counting
+	m_ptrCmdQue->DecRef();
+
 	// Check if list is in flight
 	if (m_state == CmdListState::CMD_LIST_EXECUTING) {
 		// Wait for execution
@@ -147,5 +153,11 @@ void GxDirect::XCmdList::flush(){
 }
 
 BOOL GxDirect::XCmdList::recordable() {
+	// If executing and done trigger wait (no blocking now!)
+	if (m_state == CmdListState::CMD_LIST_EXECUTING &&  m_ptrCmdQue->finished(m_uiExecutionValue)) {
+		wait();
+	}
+
+	// Return if list is (now) open
 	return (m_state == CmdListState::CMD_LIST_OPEN);
 }

@@ -97,6 +97,6 @@ namespace GxDirect {
 			/// <summary>
 			/// Value to wait for on execution
 			/// </summary>
-			UINT m_uiExecutionValue = 0;
+			UINT64 m_uiExecutionValue = 0;
 	};
 }

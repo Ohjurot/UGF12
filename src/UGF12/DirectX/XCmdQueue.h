@@ -1,11 +1,12 @@
 #pragma once
 #include "pch.h"
 
+#include <UGF12/DirectX/XCounted.h>
 #include <UGF12/DirectX/XContext.h>
 #include <UGF12/Util/Exeption.h>
 
 namespace GxDirect {
-	class XCmdQueue {
+	class XCmdQueue : public XCounted {
 		public:
 			/// <summary>
 			/// Create a command que on context

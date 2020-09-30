@@ -63,6 +63,27 @@
     <ClCompile Include="src\UGF12\Util\SystemMetrics.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\UGF12\RenderIO\LayerManager\Layer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\Concurent\SpinLock.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\Concurent\LockGuard.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListPool.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListManager.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListExecutionFlag.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\XCounted.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\UGF12\Util\CmdArgs.h">
@@ -117,6 +138,33 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\UGF12\Util\SystemMetrics.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\RenderIO\LayerManager\Layer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\RenderIO\LayerManager\ILayerImpl.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\Concurent\ILock.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\Concurent\SpinLock.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\Concurent\LockGuard.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListPool.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListManager.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListExecutionFlag.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\XCounted.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

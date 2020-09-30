@@ -1,10 +1,11 @@
 #pragma once
 #include "pch.h"
 
+#include <UGF12/DirectX/XCounted.h>
 #include <UGF12/Util/Exeption.h>
 
 namespace GxDirect {
-	class XContext {
+	class XContext : public XCounted {
 		public:
 			/// <summary>
 			/// Create context on prefered gpu
