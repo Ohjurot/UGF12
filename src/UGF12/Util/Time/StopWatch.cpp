@@ -54,7 +54,7 @@ void GxUtil::StopWatch::performTimerOperation(INT i) {
 	performTimerOperation((GxUtil::StopWatchOperation)i);
 }
 
-UINT64 GxUtil::StopWatch::getElapsedUs() {
+GxUtil::TIMESTAMP GxUtil::StopWatch::getElapsedUs() {
 	// Copy storage elapsed
 	UINT64 returnValue = m_uiElapsed;
 

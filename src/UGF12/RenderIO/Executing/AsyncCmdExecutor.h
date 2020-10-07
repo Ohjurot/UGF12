@@ -43,7 +43,9 @@ namespace GxRenderIO {
 			/// <summary>
 			/// Start execution on command list and store it
 			/// </summary>
-			/// <param name="ptrCmdList">Input command list</param>
+			/// <param name="ptrCmdList">Pointer to the command list</param>
+			/// <param name="ptrPool">Pointer to the pool</param>
+			/// <param name="ptrFlag">Pointer to the flag to be set</param>
 			/// <returns>If command list could be qued on excutor</returns>
 			BOOL queCmdList(GxDirect::XCmdList* ptrCmdList, GxRenderIO::CmdListPool* ptrPool, GxRenderIO::CmdListExecutionFlag* ptrFlag);
 

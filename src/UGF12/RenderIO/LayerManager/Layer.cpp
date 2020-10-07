@@ -11,6 +11,7 @@ GxRenderIO::LayerStack::Layer::Layer(GxDirect::XContext* ptrContext, UINT width,
 	// Call Init on layer
 	m_ptrImpl->Init();
 
+	#if defined(_DEBUG)
 	// Stream name for Buffer 0
 	std::wstringstream wss;
 	wss << L"Layer \"" << ptrImpl->layer_name << L"\" #0";
@@ -24,6 +25,7 @@ GxRenderIO::LayerStack::Layer::Layer(GxDirect::XContext* ptrContext, UINT width,
 
 	// Set buffer 1
 	m_framebuffers[1].setName(wss.str().c_str());
+	#endif
 
 	// Create thread
 	m_hThread = CreateThread(NULL, 0, GxRenderIO::LayerStack::Layer::ThreadProc, this, CREATE_SUSPENDED, &m_dwThreadId);
@@ -50,7 +52,7 @@ GxRenderIO::LayerStack::Layer::~Layer() {
 		m_bThreadShouldExit = TRUE;
 
 		// Wait for thread (10s)
-		if (WaitForSingleObject(m_hThread, 10000) == WAIT_TIMEOUT) {
+		if (WaitForSingleObject(m_hThread, 30000) == WAIT_TIMEOUT) {
 			// Force thread termination
 			#pragma warning( push )
 			#pragma warning( disable : 6258)
@@ -92,13 +94,13 @@ DWORD WINAPI GxRenderIO::LayerStack::Layer::ThreadProc(LPVOID threadParam) {
 		exOutput = EXEPTION(wss.str());
 	}
 	catch (...) {
-		// Nothing to do;
+		// Nothing to do
 	}
 
 	// Error thread exit
 	((GxRenderIO::LayerStack::Layer*)(threadParam))->m_pyThreadExeption.setParameter(exOutput);
 	((GxRenderIO::LayerStack::Layer*)(threadParam))->m_pyThreadExeption.startWork();
-	return -1;
+	return -99;
 }
 
 DWORD GxRenderIO::LayerStack::Layer::_internalThreadProc() {
@@ -108,8 +110,8 @@ DWORD GxRenderIO::LayerStack::Layer::_internalThreadProc() {
 		if (m_workerPayload.requireStart()) {
 			// Extract work
 			LayerFrameInfo* ptrInfo = &(m_workerPayload.ptr()->frameInfo);
-			GxRenderIO::CmdListProxy proxy(m_workerPayload.ptr()->ptrCmdManager);
 			GxRenderIO::FrameBuffer* ptrBuffer = m_workerPayload.ptr()->ptrFrameBuffer;
+			GxRenderIO::CmdListProxy proxy(m_workerPayload.ptr()->ptrCmdManager);
 
 			// Execute work
 			m_ptrImpl->draw(ptrInfo, &proxy, ptrBuffer);
@@ -121,10 +123,10 @@ DWORD GxRenderIO::LayerStack::Layer::_internalThreadProc() {
 
 			// Signal completion
 			m_workerPayload.completeWork();
+		} else {
+			// Pause execution
+			_mm_pause();
 		}
-
-		// Pause execution
-		_mm_pause();
 	}
 
 	// All ok return NULL
@@ -142,12 +144,6 @@ BOOL GxRenderIO::LayerStack::Layer::getResourceViewForBuffer(D3D12_CPU_DESCRIPTO
 		return FALSE;
 	}
 
-	// If expetion start is required
-	if (m_pyThreadExeption.requireStart()) {
-		// Throw exeption
-		throw m_pyThreadExeption.getParameter();
-	}
-
 	// Create view
 	m_framebuffers[bufferIndex].createSRV(srvHandle);
 
@@ -156,9 +152,20 @@ BOOL GxRenderIO::LayerStack::Layer::getResourceViewForBuffer(D3D12_CPU_DESCRIPTO
 }
 
 void GxRenderIO::LayerStack::Layer::dispatchFrame(LayerFrameInfo* frameInfo, GxRenderIO::CmdListManger* ptrCmdManager, UINT bufferIndex) {
+	// If expetion start is required
+	if (m_pyThreadExeption.requireStart()) {
+		// Throw exeption
+		throw m_pyThreadExeption.getParameter();
+	}
+	
 	// Check if wait is required
-	if (m_workerPayload.requireStart()) {
+	if (!m_workerPayload.isDone()) {
 		waitForFrame();
+	}
+
+	// Check if index is in range
+	if (bufferIndex > 1) {
+		throw EXEPTION(L"Buffer index out of Range!");
 	}
 
 	// Copy Frame info, cmd manager and buffer

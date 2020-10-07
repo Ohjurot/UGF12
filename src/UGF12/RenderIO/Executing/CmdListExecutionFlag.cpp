@@ -11,6 +11,13 @@ BOOL GxRenderIO::CmdListExecutionFlag::getCompletedValue() {
 	return m_flag.test();
 }
 
+void GxRenderIO::CmdListExecutionFlag::waitForCompletion(){
+	// While not completed sleep
+	while (!getCompletedValue()) {
+		_mm_pause();
+	}
+}
+
 void GxRenderIO::CmdListExecutionFlag::__setCompleted(){
 	// Set the flag
 	m_flag.test_and_set(std::memory_order_acquire);

@@ -31,6 +31,8 @@ GxRenderIO::CmdListProxy::~CmdListProxy() noexcept(false) {
 BOOL GxRenderIO::CmdListProxy::execute(GxRenderIO::CmdListManger::DispatchMode disptachMode, GxRenderIO::CmdListExecutionFlag* ptrFlag) {
 	// Only if dirty
 	if (m_bDirty) {
+		m_bDirty = FALSE;
+
 		if (!m_ptrManager->swapExecute(&m_ptrCmdList, disptachMode, ptrFlag)) {
 			// Execute now
 			m_ptrCmdList->execute();

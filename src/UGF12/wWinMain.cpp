@@ -43,12 +43,12 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 
 			pDev->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_ptrRtvHeap));
 			
-			pDev->Release();
+			COM_RELEASE(pDev);
 		}
 
 		void Destroy() {
 			m_ptrContext->DecRef();
-			m_ptrRtvHeap->Release();
+			COM_RELEASE(m_ptrRtvHeap);
 		}
 
 		void draw(GxRenderIO::LayerStack::LayerFrameInfo* ptrFrameInfo, GxRenderIO::CmdListProxy* ptrCmdListProxy, GxRenderIO::FrameBuffer* ptrFrameBuffer) {
@@ -57,7 +57,7 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_RENDER_TARGET, ptrCmdListProxy->get());
 
 			// Clear RTV
-			FLOAT arr[] = {
+			const static FLOAT arr[] = {
 				1.0f,
 				0.0f,
 				0.0f,
@@ -65,7 +65,7 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 			};
 			ptrCmdListProxy->get()->OMSetRenderTargets(1, &m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart(), 0, NULL);
 			ptrCmdListProxy->get()->ClearRenderTargetView(m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart(), arr, 0, NULL);
-			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_COMMON, ptrCmdListProxy->get());
+			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_GENERIC_READ, ptrCmdListProxy->get());
 			
 			// throw EXEPTION_HR(L"This is a test catched in thread", E_INVALIDARG);
 		}
@@ -73,7 +73,7 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 	private:
 		GxDirect::XContext* m_ptrContext;
 
-		ID3D12DescriptorHeap* m_ptrRtvHeap;
+		ID3D12DescriptorHeap* m_ptrRtvHeap = NULL;
 };
 
 
@@ -122,7 +122,7 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		ptrWindow->setWindowVisability(TRUE);
 
 		// Startup Async command worker
-		GxRenderIO::AsyncCmdExecutor::init(24);
+		GxRenderIO::AsyncCmdExecutor::init(48);
 
 		Impl imp(ptrContext);
 		GxRenderIO::CmdListManger* ptrManager[2];
@@ -152,6 +152,9 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 
 			// Que commands
 			ptrWindow->beginFrame(ptrCmdList->get());
+
+			// TODO: Draw Layer Stack
+
 			ptrWindow->endFrame(ptrCmdList->get());
 
 			// Execute commands
@@ -175,7 +178,7 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 
 				// If size changed
 				if (width) {
-					// Do sth
+					// TODO: Resize layer stack
 				}
 			}
 		}

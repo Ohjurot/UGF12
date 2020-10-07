@@ -29,6 +29,11 @@ namespace GxRenderIO {
 			BOOL getCompletedValue();
 
 			/// <summary>
+			/// Waits until flag is set
+			/// </summary>
+			void waitForCompletion();
+
+			/// <summary>
 			/// Set the handle to be completed
 			/// </summary>
 			void __setCompleted();

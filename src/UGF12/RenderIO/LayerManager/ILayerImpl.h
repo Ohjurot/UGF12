@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 
+#include <UGF12/Util/Time/Time.h>
 #include <UGF12/RenderIO/Framebuffer.h>
 #include <UGF12/RenderIO/Executing/CmdListProxy.h>
 
@@ -18,7 +19,7 @@ namespace GxRenderIO {
 			/// <summary>
 			/// Start time of the Frame
 			/// </summary>
-			INT64 frameStartTime = 0;
+			GxUtil::TIMESTAMP frameStartTime = 0;
 
 			/// <summary>
 			/// Delta time since last frame

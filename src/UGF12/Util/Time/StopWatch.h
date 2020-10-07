@@ -17,6 +17,9 @@ namespace GxUtil {
 		RESET  = 2,
 	};
 
+	/// <summary>
+	/// StopWatch to measure time
+	/// </summary>
 	class StopWatch {
 		public:
 			/// <summary>
@@ -56,7 +59,7 @@ namespace GxUtil {
 			/// Get the eleapsed time
 			/// </summary>
 			/// <returns>in Microseconds (INT64)</returns>
-			UINT64 getElapsedUs();
+			GxUtil::TIMESTAMP getElapsedUs();
 
 			/// <summary>
 			/// Get the eleapsed time

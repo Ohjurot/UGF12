@@ -55,7 +55,7 @@ BOOL GxRenderIO::AsyncCmdExecutor::queCmdList(GxDirect::XCmdList* ptrCmdList, Gx
 		UINT bitIndex = slot % 64;
 
 		// Check if valid / free
-		slotValid = ((m_ptrsBitset[flagIndex] & (1ULL << bitIndex)) == 0x0);
+		slotValid = ((m_ptrsBitset[flagIndex] & (1ULL << bitIndex)) != 0x0);
 
 		// Increment if slot is not valid
 		if (!slotValid) {

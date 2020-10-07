@@ -5,6 +5,9 @@
 #include <UGF12/Util/Time/Time.h>
 
 namespace GxUtil {
+	/// <summary>
+	/// High Performance Counter
+	/// </summary>
 	class HPC {
 		public:
 			/// <summary>

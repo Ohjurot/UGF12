@@ -19,7 +19,8 @@ GxRenderIO::CmdListManger::~CmdListManger(){
 
 	// Check state
 	if (m_psFramePoolState == FramePoolState::STATE_EXECUTING) {
-		// TODO: Wait
+		// Wait
+		waitForCommandLists();
 	}
 
 	// Cleanup array
@@ -85,6 +86,7 @@ BOOL GxRenderIO::CmdListManger::swapExecute(GxDirect::XCmdList** ppCmdList, GxRe
 					// Execute now 
 					ptrList->execute();
 					ptrList->wait();
+					ptrFlag->__setCompleted();
 
 					// Push back on idle pool
 					if (!m_clPoolIdle.push(ptrList)) {
