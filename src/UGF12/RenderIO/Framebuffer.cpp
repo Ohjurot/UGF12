@@ -176,6 +176,10 @@ void GxRenderIO::FrameBuffer::setName(LPCWSTR name){
 	#endif
 }
 
+GxRenderIO::ClearValue GxRenderIO::FrameBuffer::getClearValue() {
+	return m_clearValue;
+}
+
 void GxRenderIO::FrameBuffer::createBuffer() {
 	// Free buffer if exists
 	COM_RELEASE(m_ptrBuffer);

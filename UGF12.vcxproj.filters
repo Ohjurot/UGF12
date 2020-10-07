@@ -96,6 +96,9 @@
     <ClCompile Include="src\UGF12\Util\Time\StopWatch.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\UGF12\RenderIO\LayerManager\ILayerImpl.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\UGF12\Util\CmdArgs.h">

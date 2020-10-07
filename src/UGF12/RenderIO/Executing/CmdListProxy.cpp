@@ -49,5 +49,10 @@ BOOL GxRenderIO::CmdListProxy::execute(GxRenderIO::CmdListManger::DispatchMode d
 }
 
 ID3D12GraphicsCommandList* GxRenderIO::CmdListProxy::get() {
+	m_bDirty = TRUE;
 	return m_ptrCmdList->get(FALSE);
+}
+
+BOOL GxRenderIO::CmdListProxy::isDirty() {
+	return m_bDirty;
 }

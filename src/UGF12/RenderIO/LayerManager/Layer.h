@@ -2,35 +2,15 @@
 #include "pch.h"
 
 #include <UGF12/Util/Exeption.h>
+#include <UGF12/Util/StrConverter.h>
 #include <UGF12/Util/Concurent/WorkerPayload.h>
 
 #include <UGF12/RenderIO/LayerManager/ILayerImpl.h>
 #include <UGF12/RenderIO/Framebuffer.h>
-#include <UGF12/RenderIO/Executing/CmdListManager.h>
+#include <UGF12/RenderIO/Executing/CmdListProxy.h>
 
 namespace GxRenderIO {
 	namespace LayerStack {
-
-		/// <summary>
-		/// Struck for storing the frame info
-		/// </summary>
-		struct LayerFrameInfo {
-			/// <summary>
-			/// Index of the current frame
-			/// </summary>
-			UINT64 frameIndex = 0;
-
-			/// <summary>
-			/// Start time of the Frame
-			/// </summary>
-			INT64 frameStartTime = 0;
-
-			/// <summary>
-			/// Delta time since last frame
-			/// </summary>
-			FLOAT deltaTMs = 0.0;
-		};
-
 		/// <summary>
 		/// Represents a layer
 		/// </summary>
@@ -39,6 +19,9 @@ namespace GxRenderIO {
 				/// <summary>
 				/// Create layer manger
 				/// </summary>
+				/// <param name="ptrContext">Pointer to context</param>
+				/// <param name="width">Initial width</param>
+				/// <param name="height">Initial height</param>
 				/// <param name="ptrImpl">Pointer to layer implementation</param>
 				/// <param name="affinityMask">Thread affinity mask</param>
 				Layer(GxDirect::XContext* ptrContext, UINT width, UINT height, GxRenderIO::LayerStack::ILayerImpl* ptrImpl, DWORD affinityMask = 0xFFFF);
@@ -57,12 +40,25 @@ namespace GxRenderIO {
 				/// <summary>
 				/// Dispatch a frame for the worker thread (Blocks only when called multiple times without a call to waitForFrame(...) )
 				/// </summary>
-				void dispatchFrame();
+				/// <param name="frameInfo">Information about current frame</param>
+				/// <param name="ptrCmdManager">Pointer to manager to be used</param>
+				/// <param name="bufferIndex">Index of the resource to use (0/1)</param>
+				void dispatchFrame(LayerFrameInfo* frameInfo, GxRenderIO::CmdListManger* ptrCmdManager, UINT bufferIndex);
 
 				/// <summary>
 				/// Wait for the worker threads execution (Does block)
 				/// </summary>
 				void waitForFrame();
+
+			private:
+				/// <summary>
+				/// Struckt for the worker
+				/// </summary>
+				struct LayerWorkerPayload {
+					LayerFrameInfo frameInfo;
+					GxRenderIO::CmdListManger* ptrCmdManager;
+					GxRenderIO::FrameBuffer* ptrFrameBuffer;
+				};
 
 			private:
 				/// <summary>
@@ -78,6 +74,11 @@ namespace GxRenderIO {
 				/// <returns>Return code</returns>
 				DWORD _internalThreadProc();
 			private:
+				/// <summary>
+				/// Encapsulation for exeption (if start work == true -> exeption encountered)
+				/// </summary>
+				GxUtil::WorkerPayload<GxExeption> m_pyThreadExeption;
+
 				/// <summary>
 				/// Pointer to thread implementation
 				/// </summary>
@@ -101,7 +102,7 @@ namespace GxRenderIO {
 				/// <summary>
 				/// Payload of the thread worker
 				/// </summary>
-				GxUtil::WorkerPayload<LayerFrameInfo> m_workerPayload;
+				GxUtil::WorkerPayload<LayerWorkerPayload> m_workerPayload;
 
 				/// <summary>
 				/// Double buffering framebuffers (RTV)

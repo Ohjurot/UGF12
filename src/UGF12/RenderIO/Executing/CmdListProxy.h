@@ -38,6 +38,12 @@ namespace GxRenderIO {
 			/// <returns>Pointer to command list (D3D)</returns>
 			ID3D12GraphicsCommandList* get();
 
+			/// <summary>
+			/// Returns if the proxy is dirty
+			/// </summary>
+			/// <returns></returns>
+			BOOL isDirty();
+
 			// Delete unused
 			CmdListProxy(const CmdListProxy&) = delete;
 			void operator=(const CmdListProxy&) = delete;

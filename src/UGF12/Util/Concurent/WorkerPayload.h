@@ -75,6 +75,14 @@ namespace GxUtil {
 				m_param = param;
 			}
 
+			/// <summary>
+			/// Get pointer to parameter
+			/// </summary>
+			/// <returns>Pointer to T</returns>
+			T* ptr() {
+				return &m_param;
+			}
+
 			// Delete unspported
 			WorkerPayload(const WorkerPayload&) = delete;
 			void operator=(const WorkerPayload&) = delete;

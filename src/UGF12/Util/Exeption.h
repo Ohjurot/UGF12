@@ -6,6 +6,16 @@
 
 struct GxExeption {
 	/// <summary>
+	/// Default unknown exeption
+	/// </summary>
+	GxExeption() :
+		what(L"Unknown Exeption"),
+		hr(E_FAIL),
+		file("Unknown"),
+		line(-1)
+	{}
+
+	/// <summary>
 	/// Exeption
 	/// </summary>
 	/// <param name="sWhat">What was tried to archive</param>

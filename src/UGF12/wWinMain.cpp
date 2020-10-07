@@ -24,17 +24,56 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 	public:
-		Impl() :
-			GxRenderIO::LayerStack::ILayerImpl(L"Test Layer")
+		Impl(GxDirect::XContext* ptrContext) :
+			GxRenderIO::LayerStack::ILayerImpl(L"Test Layer"),
+			m_ptrContext(ptrContext)
 		{}
 
 		void Init() {
+			m_ptrContext->IncRef();
 
+			ID3D12Device* pDev;
+			m_ptrContext->getDevice(&pDev);
+
+			D3D12_DESCRIPTOR_HEAP_DESC desc;
+			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			desc.NumDescriptors = 1;
+			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			desc.NodeMask = NULL;
+
+			pDev->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_ptrRtvHeap));
+			
+			pDev->Release();
 		}
 
 		void Destroy() {
-
+			m_ptrContext->DecRef();
+			m_ptrRtvHeap->Release();
 		}
+
+		void draw(GxRenderIO::LayerStack::LayerFrameInfo* ptrFrameInfo, GxRenderIO::CmdListProxy* ptrCmdListProxy, GxRenderIO::FrameBuffer* ptrFrameBuffer) {
+			// Create RTV for buffer
+			ptrFrameBuffer->createRTV(m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart());
+			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_RENDER_TARGET, ptrCmdListProxy->get());
+
+			// Clear RTV
+			FLOAT arr[] = {
+				1.0f,
+				0.0f,
+				0.0f,
+				1.0f
+			};
+			ptrCmdListProxy->get()->OMSetRenderTargets(1, &m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart(), 0, NULL);
+			ptrCmdListProxy->get()->ClearRenderTargetView(m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart(), arr, 0, NULL);
+			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_COMMON, ptrCmdListProxy->get());
+			
+			// throw EXEPTION_HR(L"This is a test catched in thread", E_INVALIDARG);
+		}
+
+	private:
+		GxDirect::XContext* m_ptrContext;
+
+		ID3D12DescriptorHeap* m_ptrRtvHeap;
 };
 
 
@@ -85,19 +124,31 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		// Startup Async command worker
 		GxRenderIO::AsyncCmdExecutor::init(24);
 
-		Impl imp;
+		Impl imp(ptrContext);
+		GxRenderIO::CmdListManger* ptrManager[2];
+		ptrManager[0] = new GxRenderIO::CmdListManger(ptrContext, ptrCmdQue, 24);
+		ptrManager[1] = new GxRenderIO::CmdListManger(ptrContext, ptrCmdQue, 24);
 		GxRenderIO::LayerStack::Layer* ptrLay = new GxRenderIO::LayerStack::Layer(ptrContext, 1920, 1080, &imp);
-		GxRenderIO::CmdListManger* ptrManager = new GxRenderIO::CmdListManger(ptrContext, ptrCmdQue, 24);
+		GxRenderIO::LayerStack::LayerFrameInfo info;
+		GxUtil::StopWatch watch;
 
 		// Do window loop
+
+		ptrManager[0]->executeCommandLists();
+
 		while (ptrWindow->isValid()) {
 			// Run message loop
 			ptrWindow->runMessageLoop();
 
-
+			ptrManager[info.frameIndex % 2]->waitForCommandLists();
+			info.frameIndex++;
+			info.deltaTMs = watch.getElapsedMs();
+			info.frameStartTime = GxUtil::HPC::queryCounter();
+			watch.reset();
+			watch.start();
 			ptrLay->waitForFrame();
-			ptrLay->dispatchFrame();
-
+			ptrLay->dispatchFrame(&info, ptrManager[(info.frameIndex - 1) % 2], info.frameIndex % 2);
+			ptrManager[(info.frameIndex) % 2]->executeCommandLists();
 
 			// Que commands
 			ptrWindow->beginFrame(ptrCmdList->get());
@@ -130,7 +181,8 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		}
 
 		delete ptrLay;
-		delete ptrManager;
+		delete ptrManager[0];
+		delete ptrManager[1];
 
 		// Shutdown Async command worker
 		GxRenderIO::AsyncCmdExecutor::destroy();

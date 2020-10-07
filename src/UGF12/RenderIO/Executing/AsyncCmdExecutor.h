@@ -75,7 +75,7 @@ namespace GxRenderIO {
 			/// <summary>
 			/// A index with gives a hint what the next free index could be
 			/// </summary>
-			INT64 m_uiNextFreeIndex = 0;
+			UINT64 m_uiNextFreeIndex = 0;
 
 			/// <summary>
 			/// Indicates if the thread should exit

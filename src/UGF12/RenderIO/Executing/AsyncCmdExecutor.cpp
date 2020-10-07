@@ -47,7 +47,7 @@ BOOL GxRenderIO::AsyncCmdExecutor::queCmdList(GxDirect::XCmdList* ptrCmdList, Gx
 	}
 
 	// Find slot
-	UINT slot = m_uiNextFreeIndex;
+	UINT64 slot = m_uiNextFreeIndex;
 	BOOL slotValid = FALSE;
 	while (!slotValid) {
 		// Check if current slot is valid

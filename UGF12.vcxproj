@@ -110,6 +110,7 @@
     <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListPool.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListProxy.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Framebuffer.cpp" />
+    <ClCompile Include="src\UGF12\RenderIO\LayerManager\ILayerImpl.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\Layer.cpp" />
     <ClCompile Include="src\UGF12\Util\CmdArgs.cpp" />
     <ClCompile Include="src\UGF12\Util\Concurent\LockGuard.cpp" />

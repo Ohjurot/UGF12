@@ -117,6 +117,7 @@ void GxRenderIO::CmdListManger::executeCommandLists(){
 
 	// Build array
 	for (UINT i = 0; i < *m_ptrFramesStockCount; i++) {
+		m_ptrsFramesLists[i]->close();
 		m_ptrExecuteArray[i] = m_ptrsFramesLists[i]->get(FALSE);
 	}
 

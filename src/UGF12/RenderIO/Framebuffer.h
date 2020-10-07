@@ -103,6 +103,12 @@ namespace GxRenderIO {
 			/// <param name="name">Name of buffer</param>
 			void setName(LPCWSTR name);
 
+			/// <summary>
+			/// Retrive the buffers clear value
+			/// </summary>
+			/// <returns>Clear Value</returns>
+			GxRenderIO::ClearValue getClearValue();
+
 			// Delete unused
 			FrameBuffer(const FrameBuffer&) = delete;
 			void operator=(const FrameBuffer&) = delete;

@@ -73,13 +73,20 @@ void GxDirect::XWindow::resizeNow(UINT* ptrWidth, UINT* ptrHeight) {
 		// Get client rect
 		RECT cr;
 		if (GetClientRect(getHandle(), &cr)) {
-			// Resize window driver
-			m_ptrDriver->resizeSwapChain(cr.right - cr.left, cr.bottom - cr.top);
+			// Calculate width and height
+			UINT width = cr.right - cr.left;
+			UINT height = cr.bottom - cr.top;
 
-			if (ptrWidth) {
-				// Notify width and height
-				*ptrWidth = cr.right - cr.left;
-				*ptrHeight = cr.bottom - cr.top;
+			// Do not resize on miminize
+			if (width) {
+				// Resize window driver
+				m_ptrDriver->resizeSwapChain(width, cr.bottom - cr.top);
+
+				if (ptrWidth) {
+					// Notify width and height
+					*ptrWidth = width;
+					*ptrHeight = height;
+				}
 			}
 
 			// Unset flag
