@@ -104,9 +104,11 @@
     <ClCompile Include="src\UGF12\DirectX\XWindow.cpp" />
     <ClCompile Include="src\UGF12\DirectX\XWndDriver.cpp" />
     <ClCompile Include="src\UGF12\IO\KeyStates.cpp" />
+    <ClCompile Include="src\UGF12\RenderIO\Executing\AsyncCmdExecutor.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListExecutionFlag.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListManager.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListPool.cpp" />
+    <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListProxy.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Framebuffer.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\Layer.cpp" />
     <ClCompile Include="src\UGF12\Util\CmdArgs.cpp" />
@@ -114,6 +116,8 @@
     <ClCompile Include="src\UGF12\Util\Concurent\SpinLock.cpp" />
     <ClCompile Include="src\UGF12\Util\StrConverter.cpp" />
     <ClCompile Include="src\UGF12\Util\SystemMetrics.cpp" />
+    <ClCompile Include="src\UGF12\Util\Time\HPC.cpp" />
+    <ClCompile Include="src\UGF12\Util\Time\StopWatch.cpp" />
     <ClCompile Include="src\UGF12\Window\ClsProc\WindowClass.cpp" />
     <ClCompile Include="src\UGF12\Window\ClsProc\WindowProc.cpp" />
     <ClCompile Include="src\UGF12\Window\Window.cpp" />
@@ -130,12 +134,15 @@
     <ClInclude Include="src\UGF12\DirectX\XWndDriver.h" />
     <ClInclude Include="src\UGF12\IO\KeyBind.h" />
     <ClInclude Include="src\UGF12\IO\KeyStates.h" />
+    <ClInclude Include="src\UGF12\RenderIO\Executing\AsyncCmdExecutor.h" />
     <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListExecutionFlag.h" />
     <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListManager.h" />
     <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListPool.h" />
+    <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListProxy.h" />
     <ClInclude Include="src\UGF12\RenderIO\Framebuffer.h" />
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\ILayerImpl.h" />
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\Layer.h" />
+    <ClInclude Include="src\UGF12\Util\Concurent\WorkerPayload.h" />
     <ClInclude Include="src\UGF12\Util\CmdArgs.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\ILock.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\LockGuard.h" />
@@ -143,6 +150,9 @@
     <ClInclude Include="src\UGF12\Util\Exeption.h" />
     <ClInclude Include="src\UGF12\Util\StrConverter.h" />
     <ClInclude Include="src\UGF12\Util\SystemMetrics.h" />
+    <ClInclude Include="src\UGF12\Util\Time\HPC.h" />
+    <ClInclude Include="src\UGF12\Util\Time\StopWatch.h" />
+    <ClInclude Include="src\UGF12\Util\Time\Time.h" />
     <ClInclude Include="src\UGF12\Window\ClsProc\IMessageReciver.h" />
     <ClInclude Include="src\UGF12\Window\ClsProc\WindowClass.h" />
     <ClInclude Include="src\UGF12\Window\ClsProc\WindowProc.h" />

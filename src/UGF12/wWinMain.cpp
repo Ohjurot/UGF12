@@ -2,6 +2,8 @@
 
 #include <UGF12/Util/CmdArgs.h>
 #include <UGF12/Util/StrConverter.h>
+#include <UGF12/Util/Time/HPC.h>
+#include <UGF12/Util/Time/StopWatch.h>
 
 #include <UGF12/DirectX/XContext.h>
 #include <UGF12/DirectX/XFeature.h>
@@ -10,8 +12,11 @@
 #include <UGF12/DirectX/XCmdQueue.h>
 #include <UGF12/DirectX/XCmdList.h>
 
+#include <UGF12/RenderIO/Executing/AsyncCmdExecutor.h>
+
 #include <UGF12/RenderIO/LayerManager/ILayerImpl.h>
 #include <UGF12/RenderIO/LayerManager/Layer.h>
+#include <UGF12/RenderIO/Executing/CmdListManager.h>
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
@@ -19,6 +24,10 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 	public:
+		Impl() :
+			GxRenderIO::LayerStack::ILayerImpl(L"Test Layer")
+		{}
+
 		void Init() {
 
 		}
@@ -73,14 +82,22 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		// Show window
 		ptrWindow->setWindowVisability(TRUE);
 
+		// Startup Async command worker
+		GxRenderIO::AsyncCmdExecutor::init(24);
 
 		Impl imp;
-		GxRenderIO::LayerStack::Layer lay(&imp);
+		GxRenderIO::LayerStack::Layer* ptrLay = new GxRenderIO::LayerStack::Layer(ptrContext, 1920, 1080, &imp);
+		GxRenderIO::CmdListManger* ptrManager = new GxRenderIO::CmdListManger(ptrContext, ptrCmdQue, 24);
 
 		// Do window loop
 		while (ptrWindow->isValid()) {
 			// Run message loop
 			ptrWindow->runMessageLoop();
+
+
+			ptrLay->waitForFrame();
+			ptrLay->dispatchFrame();
+
 
 			// Que commands
 			ptrWindow->beginFrame(ptrCmdList->get());
@@ -111,6 +128,12 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 				}
 			}
 		}
+
+		delete ptrLay;
+		delete ptrManager;
+
+		// Shutdown Async command worker
+		GxRenderIO::AsyncCmdExecutor::destroy();
 
 		// Destroy window
 		delete ptrWindow;

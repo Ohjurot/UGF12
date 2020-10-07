@@ -75,7 +75,22 @@ BOOL GxRenderIO::CmdListManger::swapExecute(GxDirect::XCmdList** ppCmdList, GxRe
 		// Command list result is required later stage it on frame async pool
 		case DispatchMode::RESULT_REQUIRED_LATER:
 			{
-				// TODO: Need to call stageing handler
+				// Check pointer
+				if (!ptrFlag) {
+					throw EXEPTION_HR(L"Pointer to execution flag is invalid", E_INVALIDARG);
+				}
+
+				// Check if que is possible
+				if (!GxRenderIO::AsyncCmdExecutor::queExecution(ptrList, &m_clPoolIdle, ptrFlag)) {
+					// Execute now 
+					ptrList->execute();
+					ptrList->wait();
+
+					// Push back on idle pool
+					if (!m_clPoolIdle.push(ptrList)) {
+						throw EXEPTION_HR(L"Idle Command List Pool was not able to manage own list!", E_ABORT);
+					}
+				}
 			}
 			break;
 	}

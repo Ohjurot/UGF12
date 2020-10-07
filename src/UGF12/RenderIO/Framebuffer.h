@@ -162,5 +162,14 @@ namespace GxRenderIO {
 			/// MSAA Quality
 			/// </summary>
 			UINT m_uiMsaaQuality;
+
+			#ifdef _DEBUG
+
+			/// <summary>
+			/// Name of the buffer
+			/// </summary>
+			std::wstring m_strName = L"Unnamed";
+
+			#endif
 	};
 }

@@ -168,6 +168,9 @@ void GxRenderIO::FrameBuffer::setName(LPCWSTR name){
 	std::wstringstream wss;
 	wss << L"Framebuffer: " << name;
 
+	// Safe name
+	m_strName = name;
+
 	// Set name
 	m_ptrBuffer->SetName(wss.str().c_str());
 	#endif
@@ -256,7 +259,12 @@ void GxRenderIO::FrameBuffer::createBuffer() {
 
 	// Name buffer on debug
 	#ifdef _DEBUG
-		m_ptrBuffer->SetName(L"Framebuffer: Unnamed");
+		// Stream Name
+		std::wstringstream wss;
+		wss << L"Framebuffer: " << m_strName;
+		
+		// Set name
+		m_ptrBuffer->SetName(wss.str().c_str());
 	#endif
 
 	// Set state

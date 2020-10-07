@@ -9,6 +9,10 @@ namespace GxRenderIO {
 		/// </summary>
 		class ILayerImpl {
 			public:
+				ILayerImpl(std::wstring layerName) :
+					layer_name(layerName)
+				{}
+
 				/// <summary>
 				/// Function to be called on init (constructor)
 				/// </summary>
@@ -18,6 +22,13 @@ namespace GxRenderIO {
 				/// Function to be called on destroy (destruct)
 				/// </summary>
 				virtual void Destroy() = 0;
+
+				// Delete unsupported
+				ILayerImpl(const ILayerImpl&) = delete;
+				void operator=(const ILayerImpl&) = delete;
+			
+			public:
+				const std::wstring layer_name;
 		};
 	}
 }

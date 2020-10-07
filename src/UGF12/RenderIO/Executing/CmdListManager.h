@@ -8,16 +8,18 @@
 #include <UGF12/DirectX/XCmdList.h>
 #include <UGF12/DirectX/XContext.h>
 #include <UGF12/DirectX/XCmdQueue.h>
+#include <UGF12/DirectX/XCounted.h>
 
 #include <UGF12/RenderIO/Executing/CmdListPool.h>
 #include <UGF12/RenderIO/Executing/CmdListExecutionFlag.h>
+#include <UGF12/RenderIO/Executing/AsyncCmdExecutor.h>
 
 namespace GxRenderIO {
 
 	/// <summary>
 	/// Manger who manges command routing
 	/// </summary>
-	class CmdListManger {
+	class CmdListManger : public GxDirect::XCounted {
 		public:
 			/// <summary>
 			/// Enum for the disptach mode
