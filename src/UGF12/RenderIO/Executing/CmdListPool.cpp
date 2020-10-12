@@ -76,6 +76,10 @@ BOOL GxRenderIO::CmdListPool::push(GxDirect::XCmdList* ptrCmdList) {
 	return TRUE;
 }
 
+UINT GxRenderIO::CmdListPool::getUsage() {
+	return m_uiStock;
+}
+
 UINT GxRenderIO::CmdListPool::getPointer_lock(GxDirect::XCmdList** ppArrayBegin, UINT** ppUiStock) {
 	// Check parameters
 	if (!ppArrayBegin || !ppUiStock) {

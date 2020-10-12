@@ -6,6 +6,14 @@ GxRenderIO::LayerStack::ILayerImpl::ILayerImpl(std::wstring layerName, BOOL init
 	m_bEnabled(initialEnabled)
 { }
 
+void GxRenderIO::LayerStack::ILayerImpl::onResourceChange(UINT resourceType, UINT resourceIndex, void* ptrResource) {
+	// ...
+}
+
+void GxRenderIO::LayerStack::ILayerImpl::onResize(UINT width, UINT height) {
+	// ...
+}
+
 BOOL GxRenderIO::LayerStack::ILayerImpl::onDisable() {
 	return TRUE;
 }

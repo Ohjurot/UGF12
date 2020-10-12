@@ -75,6 +75,11 @@ namespace GxRenderIO {
 			/// </summary>
 			void waitForCommandLists();
 
+			/// <summary>
+			/// Wait until all commands have benn executes
+			/// </summary>
+			void flush();
+
 			// Delete unsupported
 			CmdListManger(const CmdListManger&) = delete;
 			void operator=(const CmdListManger&) = delete;

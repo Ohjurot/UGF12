@@ -77,10 +77,41 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 		m_ptrDebug->EnableDebugLayer();
 	}
 
-	// Create device
-	if (FAILED(hr = D3D12CreateDevice(ptrTargetAdapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_ptrDevice)))) {
+	// Create device low featureset (FL 11_0; Min Dx12)
+	if (FAILED(hr = D3D12CreateDevice(ptrTargetAdapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_ptrDevice)))) {
 		throw EXEPTION_HR(L"D3D12CreateDevice(...)", hr);
 	}
+
+	// Build fd descriptor
+	D3D12_FEATURE_DATA_FEATURE_LEVELS fsD;
+	ZeroMemory(&fsD, sizeof(D3D12_FEATURE_DATA_FEATURE_LEVELS));
+
+	// Fill infos
+	D3D_FEATURE_LEVEL featureList[] = {
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_12_0,
+		D3D_FEATURE_LEVEL_12_1,
+		//D3D_FEATURE_LEVEL_12_2, <--- coming soon
+	};
+	fsD.NumFeatureLevels = 4; // 5
+	fsD.pFeatureLevelsRequested = featureList;
+
+	// Check feature support
+	if (FAILED(hr = m_ptrDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &fsD, sizeof(D3D12_FEATURE_DATA_FEATURE_LEVELS)))) {
+		throw EXEPTION_HR(L"ID3D12Device->CheckFeatureSupport(...)", hr);
+	}
+
+	// Rlease low feature
+	COM_RELEASE(m_ptrDevice);
+
+	// Create device (max supported feature level)
+	if (FAILED(hr = D3D12CreateDevice(ptrTargetAdapter, fsD.MaxSupportedFeatureLevel, IID_PPV_ARGS(&m_ptrDevice)))) {
+		throw EXEPTION_HR(L"D3D12CreateDevice(...)", hr);
+	}
+
+	// Set creation level
+	m_flCreate = fsD.MaxSupportedFeatureLevel;
 
 	// Create debug device if required
 	if (debugLayer) {
@@ -98,6 +129,11 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 
 	// Adapter is no longer required
 	COM_RELEASE(ptrTargetAdapter);
+
+	// Read incrments
+	m_uiIncrementRtv = m_ptrDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	m_uiIncrementDsv = m_ptrDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	m_uiIncrementSrv = m_ptrDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 GxDirect::XContext::~XContext() {
@@ -125,4 +161,20 @@ void GxDirect::XContext::getDevice(ID3D12Device** ppDevice){
 DXGI_ADAPTER_DESC GxDirect::XContext::getGpuInfo() {
 	// Return pointer to internal info
 	return m_adapterInfo;
+}
+
+D3D_FEATURE_LEVEL GxDirect::XContext::getFeatureLevel() {
+	return m_flCreate;
+}
+
+UINT GxDirect::XContext::getIncrmentSrv() {
+	return m_uiIncrementSrv;
+}
+
+UINT GxDirect::XContext::getIncrmentDsv() {
+	return m_uiIncrementDsv;
+}
+
+UINT GxDirect::XContext::getIncrmentRtv() {
+	return m_uiIncrementRtv;
 }

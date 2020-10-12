@@ -157,3 +157,15 @@ void GxRenderIO::CmdListManger::waitForCommandLists(){
 	// Set state
 	m_psFramePoolState = FramePoolState::STATE_RECORD;
 }
+
+void GxRenderIO::CmdListManger::flush() {
+	// If not running and has stock execute
+	if (m_psFramePoolState == FramePoolState::STATE_RECORD && m_clPoolFrame.getUsage() > 0) {
+		executeCommandLists();
+	}
+	
+	// If running wait for execution
+	if (m_psFramePoolState == FramePoolState::STATE_EXECUTING) {
+		waitForCommandLists();
+	}
+}

@@ -12,6 +12,7 @@
 #include <wincodec.h>
 
 // == Include direcx ==
+#include <d3dcompiler.h>
 #include <dxgi.h>
 #include <d3d12.h>
 #include <Xinput.h>
@@ -25,3 +26,6 @@
 #include <bitset>
 #include <string>
 #include <sstream>
+
+// == UGF12 Defines ==
+#define UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER 1UL

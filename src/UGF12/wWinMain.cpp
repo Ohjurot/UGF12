@@ -15,8 +15,7 @@
 #include <UGF12/RenderIO/Executing/AsyncCmdExecutor.h>
 
 #include <UGF12/RenderIO/LayerManager/ILayerImpl.h>
-#include <UGF12/RenderIO/LayerManager/Layer.h>
-#include <UGF12/RenderIO/Executing/CmdListManager.h>
+#include <UGF12/RenderIO/LayerManager/LayerStackManager.h>
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
@@ -37,7 +36,7 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 
 			D3D12_DESCRIPTOR_HEAP_DESC desc;
 			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-			desc.NumDescriptors = 1;
+			desc.NumDescriptors = 2;
 			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 			desc.NodeMask = NULL;
 
@@ -53,21 +52,39 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 
 		void draw(GxRenderIO::LayerStack::LayerFrameInfo* ptrFrameInfo, GxRenderIO::CmdListProxy* ptrCmdListProxy, GxRenderIO::FrameBuffer* ptrFrameBuffer) {
 			// Create RTV for buffer
-			ptrFrameBuffer->createRTV(m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart());
 			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_RENDER_TARGET, ptrCmdListProxy->get());
 
-			// Clear RTV
+			// Clear Color (TEMP)
 			const static FLOAT arr[] = {
 				1.0f,
 				0.0f,
 				0.0f,
 				1.0f
 			};
-			ptrCmdListProxy->get()->OMSetRenderTargets(1, &m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart(), 0, NULL);
-			ptrCmdListProxy->get()->ClearRenderTargetView(m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart(), arr, 0, NULL);
+
+			// Create RTV Handle
+			D3D12_CPU_DESCRIPTOR_HANDLE handle = m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart();
+			handle.ptr += (SIZE_T)m_ptrContext->getIncrmentRtv() * ptrFrameInfo->resourceIndex;
+
+			ptrCmdListProxy->get()->OMSetRenderTargets(1, &handle, 0, NULL);
+			ptrCmdListProxy->get()->ClearRenderTargetView(handle, arr, 0, NULL);
 			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_GENERIC_READ, ptrCmdListProxy->get());
-			
-			// throw EXEPTION_HR(L"This is a test catched in thread", E_INVALIDARG);
+		}
+
+		void onResourceChange(UINT resource, UINT index, void* ptrResource) {
+			switch (resource) {
+				case UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER:
+					// Cast to buffer
+					GxRenderIO::FrameBuffer* ptrBuffer = (GxRenderIO::FrameBuffer*)ptrResource;
+					
+					// Create handle
+					D3D12_CPU_DESCRIPTOR_HANDLE hRtv = m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart();
+					hRtv.ptr += (SIZE_T)m_ptrContext->getIncrmentRtv() * index;
+					
+					// Create View
+					ptrBuffer->createRTV(hRtv);
+					break;
+			}
 		}
 
 	private:
@@ -92,6 +109,9 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		if (FAILED(hrCom)) {
 			throw EXEPTION_HR(L"CoInitialize(...)", hrCom);
 		}
+
+		// Startup Async command worker
+		GxRenderIO::AsyncCmdExecutor::init(48);
 
 		// Parse cmdArgs
 		GxUtil::CmdArgs cmd(cmdArgs);
@@ -121,53 +141,38 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		// Show window
 		ptrWindow->setWindowVisability(TRUE);
 
-		// Startup Async command worker
-		GxRenderIO::AsyncCmdExecutor::init(48);
+		// Create layerstack
+		GxRenderIO::LayerStack::Manager* ptrLayManager = new GxRenderIO::LayerStack::Manager(ptrContext, 24, 1920, 1080);
 
+
+		// DEBUG
 		Impl imp(ptrContext);
-		GxRenderIO::CmdListManger* ptrManager[2];
-		ptrManager[0] = new GxRenderIO::CmdListManger(ptrContext, ptrCmdQue, 24);
-		ptrManager[1] = new GxRenderIO::CmdListManger(ptrContext, ptrCmdQue, 24);
-		GxRenderIO::LayerStack::Layer* ptrLay = new GxRenderIO::LayerStack::Layer(ptrContext, 1920, 1080, &imp);
-		GxRenderIO::LayerStack::LayerFrameInfo info;
-		GxUtil::StopWatch watch;
+		ptrLayManager->insertLayer(&imp);
+		// DEBUG END
+
+
+		// Finish layer stack manger
+		ptrLayManager->update(ptrCmdList);
 
 		// Do window loop
-
-		ptrManager[0]->executeCommandLists();
-
 		while (ptrWindow->isValid()) {
+			if (ptrWindow->getKeyState(VK_SPACE)){
+				ptrLayManager->setLayerEnabled(0, FALSE);
+			}
+			else {
+				ptrLayManager->setLayerEnabled(0, TRUE);
+			}
+			
 			// Run message loop
 			ptrWindow->runMessageLoop();
 
-			ptrManager[info.frameIndex % 2]->waitForCommandLists();
-			info.frameIndex++;
-			info.deltaTMs = watch.getElapsedMs();
-			info.frameStartTime = GxUtil::HPC::queryCounter();
-			watch.reset();
-			watch.start();
-			ptrLay->waitForFrame();
-			ptrLay->dispatchFrame(&info, ptrManager[(info.frameIndex - 1) % 2], info.frameIndex % 2);
-			ptrManager[(info.frameIndex) % 2]->executeCommandLists();
-
-			// Que commands
-			ptrWindow->beginFrame(ptrCmdList->get());
-
-			// TODO: Draw Layer Stack
-
-			ptrWindow->endFrame(ptrCmdList->get());
-
-			// Execute commands
-			ptrCmdList->execute();
-
-			// Wait for pending gpu operation of the current frame
-			ptrCmdList->wait();
-
-			// Presend
-			ptrWindow->present();
+			// Run layer stack
+			ptrLayManager->startFrameExecution();
+			ptrLayManager->drawLastFrame(ptrWindow, ptrCmdList);
 
 			// Resize window if required
 			if (ptrWindow->resizeRequested()) {
+				// Wait for que and list
 				ptrCmdQue->flushGpu();
 				ptrCmdList->flush();
 
@@ -178,17 +183,14 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 
 				// If size changed
 				if (width) {
-					// TODO: Resize layer stack
+					// Resize layer stack
+					ptrLayManager->flushAndResize(width, height);
 				}
 			}
 		}
 
-		delete ptrLay;
-		delete ptrManager[0];
-		delete ptrManager[1];
-
-		// Shutdown Async command worker
-		GxRenderIO::AsyncCmdExecutor::destroy();
+		// Delete layerstack
+		delete ptrLayManager;
 
 		// Destroy window
 		delete ptrWindow;
@@ -204,6 +206,9 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 
 		// Destroy icon
 		DestroyIcon(ico);
+
+		// Shutdown Async command worker
+		GxRenderIO::AsyncCmdExecutor::destroy();
 
 		// Shutdown COM
 		CoUninitialize();

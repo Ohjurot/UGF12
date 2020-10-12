@@ -70,6 +70,13 @@ namespace GxWindow {
 			GxIO::KeyState* getKeyControler();
 
 			/// <summary>
+			/// Get the state of a key
+			/// </summary>
+			/// <param name="vKey">Key code</param>
+			/// <returns>If the key is down</returns>
+			BOOL getKeyState(UINT8 vKey);
+
+			/// <summary>
 			/// Handle messages occured in the window
 			/// </summary>
 			/// <param name="ptrResult">Pointer to the lresult to be returned when handled</param>

@@ -17,6 +17,11 @@ namespace GxRenderIO {
 			UINT64 frameIndex = 0;
 
 			/// <summary>
+			/// Index of the resource currently used
+			/// </summary>
+			UINT resourceIndex = 0;
+
+			/// <summary>
 			/// Start time of the Frame
 			/// </summary>
 			GxUtil::TIMESTAMP frameStartTime = 0;
@@ -58,13 +63,28 @@ namespace GxRenderIO {
 				virtual void draw(GxRenderIO::LayerStack::LayerFrameInfo* ptrFrameInfo, GxRenderIO::CmdListProxy* ptrCmdListProxy, GxRenderIO::FrameBuffer* ptrFrameBuffer) = 0;
 
 				/// <summary>
-				/// Indicates layer disable event
+				/// Gets called when a resource is recreated or changes
+				/// </summary>
+				/// <param name="resourceType">Type of the resource UGF12_RESOURCE_TYPE_XXXXX</param>
+				/// <param name="resourceIndex">Index in multibuffering array (typical 0 or 1)</param>
+				/// <param name="ptrResource">Pointer to the changes resource</param>
+				virtual void onResourceChange(UINT resourceType, UINT resourceIndex, void* ptrResource);
+
+				/// <summary>
+				/// Gets called when the layer gets resizes (Swap Chain resize event)
+				/// </summary>
+				/// <param name="width">Width of the layer</param>
+				/// <param name="height">Height of the layer</param>
+				virtual void onResize(UINT width, UINT height);
+
+				/// <summary>
+				/// Gets called when the layer should be disabled
 				/// </summary>
 				/// <returns>True if layer can be disabled</returns>
 				virtual BOOL onDisable();
 
 				/// <summary>
-				/// Indicates layer enable event
+				/// Gets called when the layer should be enabled
 				/// </summary>
 				/// <returns>True if layer can be enabled</returns>
 				virtual BOOL onEnable();

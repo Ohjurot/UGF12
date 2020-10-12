@@ -127,6 +127,10 @@ GxIO::KeyState* GxWindow::Window::getKeyControler(){
 	return &m_keyBind;
 }
 
+BOOL GxWindow::Window::getKeyState(UINT8 vKey) {
+	return (((1 << 15)) & GetAsyncKeyState(VK_SPACE));
+}
+
 BOOL GxWindow::Window::handleWindowMessage(LRESULT* ptrResult, HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {	
 	// Check for message
 	switch (msg) {

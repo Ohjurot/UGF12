@@ -30,6 +30,30 @@ namespace GxDirect {
 			/// <returns>Pointer to gpu info struct</returns>
 			DXGI_ADAPTER_DESC getGpuInfo();
 
+			/// <summary>
+			/// Return the feature level the device is created on
+			/// </summary>
+			/// <returns>D3D_FEATURE_LEVEL</returns>
+			D3D_FEATURE_LEVEL getFeatureLevel();
+
+			/// <summary>
+			/// Get the handle incrment size for SRV
+			/// </summary>
+			/// <returns></returns>
+			UINT getIncrmentSrv();
+
+			/// <summary>
+			/// Get the handle incrment size for DSV
+			/// </summary>
+			/// <returns></returns>
+			UINT getIncrmentDsv();
+
+			/// <summary>
+			/// Get the handle incrment size for RTV
+			/// </summary>
+			/// <returns></returns>
+			UINT getIncrmentRtv();
+
 			// Delete unuse
 			void operator=(const XContext&) = delete;
 			XContext(const XContext&) = delete;
@@ -53,5 +77,25 @@ namespace GxDirect {
 			/// Info about the running gpu
 			/// </summary>
 			DXGI_ADAPTER_DESC m_adapterInfo;
+
+			/// <summary>
+			/// Handle increment for RTV
+			/// </summary>
+			UINT m_uiIncrementRtv;
+			
+			/// <summary>
+			/// Handle increment for SRV
+			/// </summary>
+			UINT m_uiIncrementSrv;
+
+			/// <summary>
+			/// Handle increment for DSV
+			/// </summary>
+			UINT m_uiIncrementDsv;
+
+			/// <summary>
+			/// Feature level the device is created on
+			/// </summary>
+			D3D_FEATURE_LEVEL m_flCreate;
 	};
 }

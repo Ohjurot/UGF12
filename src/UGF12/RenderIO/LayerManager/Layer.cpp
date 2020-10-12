@@ -42,7 +42,10 @@ GxRenderIO::LayerStack::Layer::Layer(GxDirect::XContext* ptrContext, UINT width,
 	if (ResumeThread(m_hThread) == -1) {
 		throw EXEPTION_HR(L"ResumeThread(...)", GetLastError());
 	}
-	
+
+	// Resource change on implementation
+	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 0, &m_framebuffers[0]);
+	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 1, &m_framebuffers[1]);
 }
 
 GxRenderIO::LayerStack::Layer::~Layer() {
@@ -139,11 +142,6 @@ BOOL GxRenderIO::LayerStack::Layer::getResourceViewForBuffer(D3D12_CPU_DESCRIPTO
 		return FALSE;
 	}
 
-	// Check if resource state is as required
-	if (m_framebuffers[bufferIndex].getState() != D3D12_RESOURCE_STATE_GENERIC_READ) {
-		return FALSE;
-	}
-
 	// Create view
 	m_framebuffers[bufferIndex].createSRV(srvHandle);
 
@@ -169,6 +167,7 @@ void GxRenderIO::LayerStack::Layer::dispatchFrame(LayerFrameInfo* frameInfo, GxR
 	}
 
 	// Copy Frame info, cmd manager and buffer
+	frameInfo->resourceIndex = bufferIndex;
 	memcpy(&m_workerPayload.ptr()->frameInfo, frameInfo, sizeof(LayerFrameInfo));
 	m_workerPayload.ptr()->ptrCmdManager = ptrCmdManager;
 	m_workerPayload.ptr()->ptrFrameBuffer = &m_framebuffers[bufferIndex];
@@ -188,4 +187,25 @@ void GxRenderIO::LayerStack::Layer::waitForFrame() {
 		// Pause
 		_mm_pause();
 	}
+}
+
+BOOL GxRenderIO::LayerStack::Layer::setEnable(BOOL enable) {
+	return m_ptrImpl->setLayerEnable(enable);
+}
+
+void GxRenderIO::LayerStack::Layer::resize(UINT width, UINT height){
+	// Resize layer
+	m_ptrImpl->onResize(width, height);
+	
+	// Resize buffers
+	m_framebuffers[0].resize(width, height);
+	m_framebuffers[1].resize(width, height);
+
+	// Nofity buffer change
+	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 0, &m_framebuffers[0]);
+	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 1, &m_framebuffers[1]);
+}
+
+BOOL GxRenderIO::LayerStack::Layer::getEnabled() {
+	return m_ptrImpl->getLayerEnableState();
 }

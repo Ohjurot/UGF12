@@ -50,6 +50,26 @@ namespace GxRenderIO {
 				/// </summary>
 				void waitForFrame();
 
+				/// <summary>
+				/// Enable or disables the layer
+				/// </summary>
+				/// <param name="enable">If the layer should be enabled</param>
+				/// <returns>If the set enable function succeeded</returns>
+				BOOL setEnable(BOOL enable);
+
+				/// <summary>
+				/// Resizes the layer to new width and height
+				/// </summary>
+				/// <param name="width">New width</param>
+				/// <param name="height">New Height</param>
+				void resize(UINT width, UINT height);
+
+				/// <summary>
+				/// Get the enabled state of the layer
+				/// </summary>
+				/// <returns>If the layer is currently enabled</returns>
+				BOOL getEnabled();
+
 			private:
 				/// <summary>
 				/// Struckt for the worker

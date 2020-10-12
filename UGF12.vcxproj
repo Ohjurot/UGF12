@@ -68,7 +68,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxgi.lib;d3d12.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dcompiler.lib;dxgi.lib;d3d12.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -88,7 +88,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxgi.lib;d3d12.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dcompiler.lib;dxgi.lib;d3d12.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -112,6 +112,8 @@
     <ClCompile Include="src\UGF12\RenderIO\Framebuffer.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\ILayerImpl.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\Layer.cpp" />
+    <ClCompile Include="src\UGF12\RenderIO\LayerManager\LayerStackManager.cpp" />
+    <ClCompile Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.cpp" />
     <ClCompile Include="src\UGF12\Util\CmdArgs.cpp" />
     <ClCompile Include="src\UGF12\Util\Concurent\LockGuard.cpp" />
     <ClCompile Include="src\UGF12\Util\Concurent\SpinLock.cpp" />
@@ -143,6 +145,8 @@
     <ClInclude Include="src\UGF12\RenderIO\Framebuffer.h" />
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\ILayerImpl.h" />
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\Layer.h" />
+    <ClInclude Include="src\UGF12\RenderIO\LayerManager\LayerStackManager.h" />
+    <ClInclude Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\WorkerPayload.h" />
     <ClInclude Include="src\UGF12\Util\CmdArgs.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\ILock.h" />

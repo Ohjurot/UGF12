@@ -99,6 +99,12 @@
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\ILayerImpl.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\UGF12\RenderIO\LayerManager\LayerStackManager.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\UGF12\Util\CmdArgs.h">
@@ -198,6 +204,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\UGF12\Util\Time\StopWatch.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\RenderIO\LayerManager\LayerStackManager.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

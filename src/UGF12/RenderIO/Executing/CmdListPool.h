@@ -43,6 +43,12 @@ namespace GxRenderIO {
 			BOOL push(GxDirect::XCmdList* ptrCmdList);
 
 			/// <summary>
+			/// Get the current usage
+			/// </summary>
+			/// <returns>Active command lists in stock</returns>
+			UINT getUsage();
+
+			/// <summary>
 			/// Lock the internal guard and retriev access to internal object
 			/// </summary>
 			/// <param name="ppArrayBegin">Pointer to the external pointer to first array element</param>
