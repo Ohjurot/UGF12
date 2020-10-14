@@ -77,6 +77,12 @@ namespace GxWindow {
 			BOOL getKeyState(UINT8 vKey);
 
 			/// <summary>
+			/// Setup the UI Layer
+			/// </summary>
+			/// <param name="ptrUiLayer">Input UI Layer</param>
+			void setUILayer(GxWindow::IMessageReciver* ptrUiLayer);
+
+			/// <summary>
 			/// Handle messages occured in the window
 			/// </summary>
 			/// <param name="ptrResult">Pointer to the lresult to be returned when handled</param>
@@ -105,5 +111,15 @@ namespace GxWindow {
 			/// Window is active
 			/// </summary>
 			BOOL m_bIsActive = FALSE;
+
+			/// <summary>
+			/// Indicates that the window should close
+			/// </summary>
+			BOOL m_bShouldClose = FALSE;
+
+			/// <summary>
+			/// Pointer for UI hook
+			/// </summary>
+			GxWindow::IMessageReciver* m_ptrUiLayer = NULL;
 	};
 }

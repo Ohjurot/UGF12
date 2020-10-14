@@ -3,7 +3,9 @@
 
 #include <UGF12/Util/Exeption.h>
 #include <UGF12/Util/StrConverter.h>
+#include <UGF12/Util/Time/StopWatch.h>
 #include <UGF12/Util/Concurent/WorkerPayload.h>
+#include <UGF12/Util/Concurent/ExecutionCounter.h>
 
 #include <UGF12/RenderIO/LayerManager/ILayerImpl.h>
 #include <UGF12/RenderIO/Framebuffer.h>
@@ -30,20 +32,18 @@ namespace GxRenderIO {
 				~Layer();
 
 				/// <summary>
-				/// Create Shader resource view for a buffer
+				/// Create Shader resource view for buffer
 				/// </summary>
 				/// <param name="srvHandle">Shader resource view handle</param>
-				/// <param name="bufferIndex">Index of the buffer to be set the handle to</param>
 				/// <returns>If action completed successfully</returns>
-				BOOL getResourceViewForBuffer(D3D12_CPU_DESCRIPTOR_HANDLE srvHandle, UINT bufferIndex);
+				BOOL getResourceViewForBuffer(D3D12_CPU_DESCRIPTOR_HANDLE srvHandle);
 
 				/// <summary>
 				/// Dispatch a frame for the worker thread (Blocks only when called multiple times without a call to waitForFrame(...) )
 				/// </summary>
 				/// <param name="frameInfo">Information about current frame</param>
 				/// <param name="ptrCmdManager">Pointer to manager to be used</param>
-				/// <param name="bufferIndex">Index of the resource to use (0/1)</param>
-				void dispatchFrame(LayerFrameInfo* frameInfo, GxRenderIO::CmdListManger* ptrCmdManager, UINT bufferIndex);
+				void dispatchFrame(LayerFrameInfo* frameInfo, GxRenderIO::CmdListManger* ptrCmdManager);
 
 				/// <summary>
 				/// Wait for the worker threads execution (Does block)
@@ -93,6 +93,7 @@ namespace GxRenderIO {
 				/// </summary>
 				/// <returns>Return code</returns>
 				DWORD _internalThreadProc();
+
 			private:
 				/// <summary>
 				/// Encapsulation for exeption (if start work == true -> exeption encountered)
@@ -124,10 +125,11 @@ namespace GxRenderIO {
 				/// </summary>
 				GxUtil::WorkerPayload<LayerWorkerPayload> m_workerPayload;
 
+
 				/// <summary>
 				/// Double buffering framebuffers (RTV)
 				/// </summary>
-				GxRenderIO::FrameBuffer m_framebuffers[2];
+				GxRenderIO::FrameBuffer m_framebuffer;
 		};
 	}
 }

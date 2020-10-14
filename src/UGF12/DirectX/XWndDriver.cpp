@@ -112,12 +112,12 @@ void GxDirect::XWndDriver::beginFrame(ID3D12GraphicsCommandList* ptrCmdList) {
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart();
 	rtvHandle.ptr += m_uiRtvIncrementSize * (SIZE_T)m_uiCurrentBackBuffer;
 
+	// Set render target
+	ptrCmdList->OMSetRenderTargets(1, &rtvHandle, TRUE, NULL);
+
 	// Clear rtv
 	static FLOAT color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	ptrCmdList->ClearRenderTargetView(rtvHandle, color, 0, NULL);
-
-	// Set render target
-	ptrCmdList->OMSetRenderTargets(1, &rtvHandle, TRUE, NULL);
 }
 
 void GxDirect::XWndDriver::endFrame(ID3D12GraphicsCommandList* ptrCmdList) {

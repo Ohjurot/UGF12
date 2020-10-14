@@ -17,8 +17,8 @@ namespace GxUtil {
 			/// </summary>
 			WorkerPayload() {
 				// Clear all flags
-				m_flagCompletion.test_and_set(std::memory_order_acquire);
-				m_flagStart.clear(std::memory_order_release);
+				// m_flagCompletion.store(true, std::memory_order_seq_cst);
+				// m_flagStart.store(false, std::memory_order_release);
 
 				// Zero parameter
 				ZeroMemory(&m_param, sizeof(T));
@@ -29,8 +29,10 @@ namespace GxUtil {
 			/// </summary>
 			void startWork() {
 				// Set start flag and clear completion flag
-				m_flagCompletion.clear(std::memory_order_release);
-				m_flagStart.test_and_set(std::memory_order_acquire);
+				// m_flagCompletion.store(false, std::memory_order_release);
+				// m_flagStart.store(true, std::memory_order_seq_cst);
+				InterlockedExchangeNoFence64(&m_flagStart, 1);
+				InterlockedExchangeNoFence64(&m_flagStop, 0);
 			}
 
 			/// <summary>
@@ -38,8 +40,10 @@ namespace GxUtil {
 			/// </summary>
 			void completeWork() {
 				// Clear start condition and set completion
-				m_flagStart.clear(std::memory_order_release);
-				m_flagCompletion.test_and_set(std::memory_order_acquire);
+				// m_flagStart.store(false, std::memory_order_release);
+				// m_flagCompletion.store(true, std::memory_order_seq_cst);
+				InterlockedExchangeNoFence64(&m_flagStart, 0);
+				InterlockedExchangeNoFence64(&m_flagStop, 1);
 			}
 
 			/// <summary>
@@ -47,7 +51,8 @@ namespace GxUtil {
 			/// </summary>
 			/// <returns>If start is required</returns>
 			BOOL requireStart() {
-				return m_flagStart.test(std::memory_order_acquire);
+				return (m_flagStart == 1);
+				// return m_flagStart.load();
 			}
 
 			/// <summary>
@@ -55,7 +60,8 @@ namespace GxUtil {
 			/// </summary>
 			/// <returns>If operation is done</returns>
 			BOOL isDone() {
-				return m_flagCompletion.test(std::memory_order_acquire);
+				return (m_flagStop == 1);
+				// return m_flagCompletion.load();
 			}
 
 
@@ -86,16 +92,19 @@ namespace GxUtil {
 			// Delete unspported
 			WorkerPayload(const WorkerPayload&) = delete;
 			void operator=(const WorkerPayload&) = delete;
-		private:
+		private:			
 			/// <summary>
 			/// Atomic flag for work start condition
 			/// </summary>
-			std::atomic_flag m_flagStart;
+			// std::atomic<bool> m_flagStart;
 
 			/// <summary>
 			/// Atomic flag for work completion condition
 			/// </summary>
-			std::atomic_flag m_flagCompletion;
+			// std::atomic<bool> m_flagCompletion;
+
+			volatile LONG64 m_flagStart = 0;
+			volatile LONG64 m_flagStop = 1;
 
 			/// <summary>
 			/// Stored parameter

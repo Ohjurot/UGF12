@@ -47,13 +47,13 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)vendor\imgui\include;$(SolutionDir)src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)vendor\imgui\include;$(SolutionDir)src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -104,6 +104,9 @@
     <ClCompile Include="src\UGF12\DirectX\XWindow.cpp" />
     <ClCompile Include="src\UGF12\DirectX\XWndDriver.cpp" />
     <ClCompile Include="src\UGF12\IO\KeyStates.cpp" />
+    <ClCompile Include="src\UGF12\Layers\DebugUI\DebugUILayer.cpp" />
+    <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_InfoHint.cpp" />
+    <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_Menue.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\AsyncCmdExecutor.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListExecutionFlag.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListManager.cpp" />
@@ -115,6 +118,7 @@
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\LayerStackManager.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.cpp" />
     <ClCompile Include="src\UGF12\Util\CmdArgs.cpp" />
+    <ClCompile Include="src\UGF12\Util\Concurent\ExecutionCounter.cpp" />
     <ClCompile Include="src\UGF12\Util\Concurent\LockGuard.cpp" />
     <ClCompile Include="src\UGF12\Util\Concurent\SpinLock.cpp" />
     <ClCompile Include="src\UGF12\Util\StrConverter.cpp" />
@@ -125,6 +129,30 @@
     <ClCompile Include="src\UGF12\Window\ClsProc\WindowProc.cpp" />
     <ClCompile Include="src\UGF12\Window\Window.cpp" />
     <ClCompile Include="src\UGF12\wWinMain.cpp" />
+    <ClCompile Include="vendor\imgui\src\imgui.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_demo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_draw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_impl_dx12.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_impl_win32.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_widgets.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h" />
@@ -137,6 +165,10 @@
     <ClInclude Include="src\UGF12\DirectX\XWndDriver.h" />
     <ClInclude Include="src\UGF12\IO\KeyBind.h" />
     <ClInclude Include="src\UGF12\IO\KeyStates.h" />
+    <ClInclude Include="src\UGF12\Layers\DebugUI\DebugUILayer.h" />
+    <ClInclude Include="src\UGF12\Layers\DebugUI\IGuiDrawable.h" />
+    <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_InfoHint.h" />
+    <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_Menue.h" />
     <ClInclude Include="src\UGF12\RenderIO\Executing\AsyncCmdExecutor.h" />
     <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListExecutionFlag.h" />
     <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListManager.h" />
@@ -147,6 +179,7 @@
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\Layer.h" />
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\LayerStackManager.h" />
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.h" />
+    <ClInclude Include="src\UGF12\Util\Concurent\ExecutionCounter.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\WorkerPayload.h" />
     <ClInclude Include="src\UGF12\Util\CmdArgs.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\ILock.h" />

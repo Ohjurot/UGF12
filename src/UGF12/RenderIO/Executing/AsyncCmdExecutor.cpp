@@ -147,7 +147,7 @@ DWORD __stdcall GxRenderIO::AsyncCmdExecutor::ThreadProc(LPVOID param) {
 DWORD GxRenderIO::AsyncCmdExecutor::__itrlThreadProc() {
 	// While no exit code was send
 	while (!m_bThredShouldExit) {
-		// Sleep for 10s
+		// Sleep for 1s
 		Sleep(1000);
 
 		// Lock guard

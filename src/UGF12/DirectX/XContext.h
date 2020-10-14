@@ -3,6 +3,7 @@
 
 #include <UGF12/DirectX/XCounted.h>
 #include <UGF12/Util/Exeption.h>
+#include <sdkddkver.h>
 
 namespace GxDirect {
 	class XContext : public XCounted {
@@ -35,6 +36,12 @@ namespace GxDirect {
 			/// </summary>
 			/// <returns>D3D_FEATURE_LEVEL</returns>
 			D3D_FEATURE_LEVEL getFeatureLevel();
+
+			/// <summary>
+			/// Returns the feature string
+			/// </summary>
+			/// <returns></returns>
+			std::wstring& getFeatureString();
 
 			/// <summary>
 			/// Get the handle incrment size for SRV
@@ -97,5 +104,10 @@ namespace GxDirect {
 			/// Feature level the device is created on
 			/// </summary>
 			D3D_FEATURE_LEVEL m_flCreate;
+
+			/// <summary>
+			/// Feature string
+			/// </summary>
+			std::wstring m_wstrFeatures;
 	};
 }

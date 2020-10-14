@@ -105,6 +105,36 @@
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\UGF12\Layers\DebugUI\DebugUILayer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_demo.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_draw.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_impl_dx12.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_impl_win32.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\src\imgui_widgets.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\Concurent\ExecutionCounter.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_InfoHint.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_Menue.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\UGF12\Util\CmdArgs.h">
@@ -210,6 +240,21 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Layers\DebugUI\DebugUILayer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\Concurent\ExecutionCounter.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_InfoHint.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Layers\DebugUI\IGuiDrawable.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_Menue.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

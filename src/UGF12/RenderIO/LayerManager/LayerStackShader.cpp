@@ -20,7 +20,7 @@ void GxRenderIO::LayerStack::Shader::compile(){
 		ID3D10Blob* pErr = NULL;
 		
 		// Compile shader VS
-		if (FAILED(hr = D3DCompile(s_instance.c_vertexShader, strlen(s_instance.c_vertexShader), NULL, NULL, NULL, "main", "vs_5_1", compilerFlags, NULL, &s_instance.m_ptrBlobVs, &pErr))) {
+		if (FAILED(hr = D3DCompile(s_instance.c_vertexShader, strlen(s_instance.c_vertexShader), "Vertex Shader", NULL, NULL, "main", "vs_5_1", compilerFlags, NULL, &s_instance.m_ptrBlobVs, &pErr))) {
 			// Get Error string
 			LPCSTR errStr = (LPSTR)pErr->GetBufferPointer();
 			
@@ -33,7 +33,7 @@ void GxRenderIO::LayerStack::Shader::compile(){
 		}
 
 		// Compile shader PS
-		if (FAILED(hr = D3DCompile(s_instance.c_pixelShader, strlen(s_instance.c_pixelShader), NULL, NULL, NULL, "main", "ps_5_1", compilerFlags, NULL, &s_instance.m_ptrBlobPs, &pErr))) {
+		if (FAILED(hr = D3DCompile(s_instance.c_pixelShader, strlen(s_instance.c_pixelShader), "Pixel Shader", NULL, NULL, "main", "ps_5_1", compilerFlags, NULL, &s_instance.m_ptrBlobPs, &pErr))) {
 			// Get Error string
 			LPCSTR errStr = (LPSTR)pErr->GetBufferPointer();
 

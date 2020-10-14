@@ -17,6 +17,8 @@
 #include <UGF12/RenderIO/LayerManager/ILayerImpl.h>
 #include <UGF12/RenderIO/LayerManager/LayerStackManager.h>
 
+#include <UGF12/Layers/DebugUI/DebugUILayer.h>
+
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -36,7 +38,7 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 
 			D3D12_DESCRIPTOR_HEAP_DESC desc;
 			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-			desc.NumDescriptors = 2;
+			desc.NumDescriptors = 1;
 			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 			desc.NodeMask = NULL;
 
@@ -64,13 +66,12 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 
 			// Create RTV Handle
 			D3D12_CPU_DESCRIPTOR_HANDLE handle = m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart();
-			handle.ptr += (SIZE_T)m_ptrContext->getIncrmentRtv() * ptrFrameInfo->resourceIndex;
 
 			ptrCmdListProxy->get()->OMSetRenderTargets(1, &handle, 0, NULL);
 			ptrCmdListProxy->get()->ClearRenderTargetView(handle, arr, 0, NULL);
 			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_GENERIC_READ, ptrCmdListProxy->get());
 		}
-
+		
 		void onResourceChange(UINT resource, UINT index, void* ptrResource) {
 			switch (resource) {
 				case UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER:
@@ -147,28 +148,24 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 
 		// DEBUG
 		Impl imp(ptrContext);
+		UGF12::DebugUI::DebugUILayer debugUiLayer(ptrContext, ptrWindow);
+
 		ptrLayManager->insertLayer(&imp);
+		ptrLayManager->insertLayer(&debugUiLayer);
+		ptrWindow->setUILayer(&debugUiLayer);
 		// DEBUG END
 
 
 		// Finish layer stack manger
-		ptrLayManager->update(ptrCmdList);
+		ptrLayManager->init(ptrCmdList);
 
 		// Do window loop
 		while (ptrWindow->isValid()) {
-			if (ptrWindow->getKeyState(VK_SPACE)){
-				ptrLayManager->setLayerEnabled(0, FALSE);
-			}
-			else {
-				ptrLayManager->setLayerEnabled(0, TRUE);
-			}
-			
 			// Run message loop
 			ptrWindow->runMessageLoop();
 
 			// Run layer stack
-			ptrLayManager->startFrameExecution();
-			ptrLayManager->drawLastFrame(ptrWindow, ptrCmdList);
+			ptrLayManager->execute(ptrWindow, ptrCmdList);
 
 			// Resize window if required
 			if (ptrWindow->resizeRequested()) {
@@ -187,6 +184,8 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 					ptrLayManager->flushAndResize(width, height);
 				}
 			}
+
+			// ptrLayManager->setLayerEnabled(1, FALSE);
 		}
 
 		// Delete layerstack

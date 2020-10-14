@@ -5,6 +5,7 @@
 #include <UGF12/Util/SystemMetrics.h>
 #include <UGF12/Util/Time/StopWatch.h>
 #include <UGF12/Util/Time/HPC.h>
+#include <UGF12/Util/Concurent/ExecutionCounter.h>
 
 #include <UGF12/DirectX/XCmdQueue.h>
 #include <UGF12/DirectX/XCmdList.h>
@@ -69,7 +70,7 @@ namespace GxRenderIO {
 				/// Should be called bevore the main loop
 				/// </summary>
 				/// <param name="ptrCmdList">Pointe to command list</param>
-				void update(GxDirect::XCmdList* ptrCmdList);
+				void init(GxDirect::XCmdList* ptrCmdList);
 
 				/// <summary>
 				/// Flush and resize layer stack
@@ -79,17 +80,12 @@ namespace GxRenderIO {
 				void flushAndResize(UINT width, UINT height);
 
 				/// <summary>
-				/// Start next frames execution
-				/// </summary>
-				void startFrameExecution();
-
-				/// <summary>
 				/// Draw last processed frame on a window
 				/// </summary>
 				/// <param name="ptrWindow">Pointe to window</param>
 				/// <param name="ptrWindowList">Pointer to window list</param>
 				/// <param name="vsync">If vsync should be enabled</param>
-				void drawLastFrame(GxDirect::XWindow* ptrWindow, GxDirect::XCmdList* ptrWindowList, BOOL vsync = FALSE);
+				void execute(GxDirect::XWindow* ptrWindow, GxDirect::XCmdList* ptrWindowList, BOOL vsync = FALSE);
 
 				/// <summary>
 				/// Set the enable state of a layer
@@ -141,14 +137,14 @@ namespace GxRenderIO {
 				GxUtil::StopWatch m_stopWatch;
 
 				/// <summary>
-				/// Double buffering command ques
+				/// Command Que
 				/// </summary>
-				GxDirect::XCmdQueue* m_ptrsCmdQues[2];
+				GxDirect::XCmdQueue* m_ptrCmdQues;
 
 				/// <summary>
-				/// Double buffering cmd list manger
+				/// Command list manager
 				/// </summary>
-				GxRenderIO::CmdListManger* m_ptrsCmdListMangers[2];
+				GxRenderIO::CmdListManger* m_ptrCmdListManger;
 
 				/// <summary>
 				/// Array of layers (16 Max)
@@ -164,11 +160,6 @@ namespace GxRenderIO {
 				/// Number of layers used
 				/// </summary>
 				UINT m_uiLayersUsed = 0;
-
-				/// <summary>
-				/// Index of the current resource
-				/// </summary>
-				UINT m_uiCurrentBufferIndex = 1;
 				
 				/// <summary>
 				/// Current frame info
@@ -177,9 +168,9 @@ namespace GxRenderIO {
 
 			private:
 				/// <summary>
-				/// Double buffered descriptor heap
+				/// Descritor heap
 				/// </summary>
-				ID3D12DescriptorHeap* m_ptrsDecriptorHeaps[2];
+				ID3D12DescriptorHeap* m_ptrDecriptorHeap = NULL;
 
 				/// <summary>
 				/// GPU Resource for constant buffer

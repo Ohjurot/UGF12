@@ -82,8 +82,7 @@ void main(float2 pos : POSITION, float2 tex : TEXTCORDS, uint instance : SV_Inst
 
 	if(layerStackBuffer.enableMask & (1U << instance)){
 		outData.pos.xy = pos.xy;
-		outData.pos.z = 0.0f;
-		outData.pos.w = 0.0f;
+		outData.pos.zw = 1.0f;
 	} else {
 		outData.pos.xyzw = 99.0f;
 	}
@@ -110,7 +109,11 @@ sampler smp : register(s0);
 
 [RootSignature(ROOT)]
 float4 main(InputD data) : SV_TARGET{
-	return tex[data.instance].Sample(smp, data.tex);
+	float4 color = float4(tex[data.instance].Sample(smp, data.tex).rgb, 1.0f);
+	if(color.r < 0.01 && color.g < 0.01 && color.b < 0.01){
+		discard;
+	}
+	return color;
 }
 )";
 		};

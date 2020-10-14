@@ -3,10 +3,7 @@
 
 GxRenderIO::LayerStack::Layer::Layer(GxDirect::XContext* ptrContext, UINT width, UINT height, GxRenderIO::LayerStack::ILayerImpl* ptrImpl, DWORD affinityMask) :
 	m_ptrImpl(ptrImpl),
-	m_framebuffers{
-		{ptrContext, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, GxRenderIO::FrameBufferUsage::BUFFER_TEXTURE_RENDER_TARGET},
-		{ptrContext, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, GxRenderIO::FrameBufferUsage::BUFFER_TEXTURE_RENDER_TARGET}
-	}
+	m_framebuffer(ptrContext, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, GxRenderIO::FrameBufferUsage::BUFFER_TEXTURE_RENDER_TARGET)
 {
 	// Call Init on layer
 	m_ptrImpl->Init();
@@ -14,17 +11,10 @@ GxRenderIO::LayerStack::Layer::Layer(GxDirect::XContext* ptrContext, UINT width,
 	#if defined(_DEBUG)
 	// Stream name for Buffer 0
 	std::wstringstream wss;
-	wss << L"Layer \"" << ptrImpl->layer_name << L"\" #0";
+	wss << L"Layer \"" << ptrImpl->layer_name << L"\"";
 	
 	// Set buffer 0
-	m_framebuffers[0].setName(wss.str().c_str());
-
-	// Stream name for Buffer 1
-	wss.str(L"");
-	wss << L"Layer \"" << ptrImpl->layer_name << L"\" #1";
-
-	// Set buffer 1
-	m_framebuffers[1].setName(wss.str().c_str());
+	m_framebuffer.setName(wss.str().c_str());
 	#endif
 
 	// Create thread
@@ -44,8 +34,8 @@ GxRenderIO::LayerStack::Layer::Layer(GxDirect::XContext* ptrContext, UINT width,
 	}
 
 	// Resource change on implementation
-	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 0, &m_framebuffers[0]);
-	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 1, &m_framebuffers[1]);
+	m_ptrImpl->onResize(width, height);
+	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 0, &m_framebuffer);
 }
 
 GxRenderIO::LayerStack::Layer::~Layer() {
@@ -108,7 +98,7 @@ DWORD WINAPI GxRenderIO::LayerStack::Layer::ThreadProc(LPVOID threadParam) {
 
 DWORD GxRenderIO::LayerStack::Layer::_internalThreadProc() {
 	// While thread should not exit
-	while (!m_bThreadShouldExit) {
+	while (!m_bThreadShouldExit) {		
 		// Check for start condition
 		if (m_workerPayload.requireStart()) {
 			// Extract work
@@ -117,11 +107,13 @@ DWORD GxRenderIO::LayerStack::Layer::_internalThreadProc() {
 			GxRenderIO::CmdListProxy proxy(m_workerPayload.ptr()->ptrCmdManager);
 
 			// Execute work
-			m_ptrImpl->draw(ptrInfo, &proxy, ptrBuffer);
+			if (m_ptrImpl->getLayerEnableState()) {
+				m_ptrImpl->draw(ptrInfo, &proxy, ptrBuffer);
 
-			// Check if execute is required
-			if (proxy.isDirty()) {
-				proxy.execute();
+				// Check if execute is required
+				if (proxy.isDirty()) {
+					proxy.execute();
+				}
 			}
 
 			// Signal completion
@@ -136,20 +128,15 @@ DWORD GxRenderIO::LayerStack::Layer::_internalThreadProc() {
 	return 0;
 }
 
-BOOL GxRenderIO::LayerStack::Layer::getResourceViewForBuffer(D3D12_CPU_DESCRIPTOR_HANDLE srvHandle, UINT bufferIndex) {
-	// Check if index is in range
-	if (bufferIndex > 1) {
-		return FALSE;
-	}
-
+BOOL GxRenderIO::LayerStack::Layer::getResourceViewForBuffer(D3D12_CPU_DESCRIPTOR_HANDLE srvHandle) {
 	// Create view
-	m_framebuffers[bufferIndex].createSRV(srvHandle);
+	m_framebuffer.createSRV(srvHandle);
 
 	// OK
 	return TRUE;
 }
 
-void GxRenderIO::LayerStack::Layer::dispatchFrame(LayerFrameInfo* frameInfo, GxRenderIO::CmdListManger* ptrCmdManager, UINT bufferIndex) {
+void GxRenderIO::LayerStack::Layer::dispatchFrame(LayerFrameInfo* frameInfo, GxRenderIO::CmdListManger* ptrCmdManager) {
 	// If expetion start is required
 	if (m_pyThreadExeption.requireStart()) {
 		// Throw exeption
@@ -158,19 +145,13 @@ void GxRenderIO::LayerStack::Layer::dispatchFrame(LayerFrameInfo* frameInfo, GxR
 	
 	// Check if wait is required
 	if (!m_workerPayload.isDone()) {
-		waitForFrame();
-	}
-
-	// Check if index is in range
-	if (bufferIndex > 1) {
-		throw EXEPTION(L"Buffer index out of Range!");
+	 	waitForFrame();
 	}
 
 	// Copy Frame info, cmd manager and buffer
-	frameInfo->resourceIndex = bufferIndex;
 	memcpy(&m_workerPayload.ptr()->frameInfo, frameInfo, sizeof(LayerFrameInfo));
 	m_workerPayload.ptr()->ptrCmdManager = ptrCmdManager;
-	m_workerPayload.ptr()->ptrFrameBuffer = &m_framebuffers[bufferIndex];
+	m_workerPayload.ptr()->ptrFrameBuffer = &m_framebuffer;
 
 	// Signal work
 	m_workerPayload.startWork();
@@ -198,12 +179,10 @@ void GxRenderIO::LayerStack::Layer::resize(UINT width, UINT height){
 	m_ptrImpl->onResize(width, height);
 	
 	// Resize buffers
-	m_framebuffers[0].resize(width, height);
-	m_framebuffers[1].resize(width, height);
+	m_framebuffer.resize(width, height);
 
 	// Nofity buffer change
-	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 0, &m_framebuffers[0]);
-	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 1, &m_framebuffers[1]);
+	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 0, &m_framebuffer);
 }
 
 BOOL GxRenderIO::LayerStack::Layer::getEnabled() {

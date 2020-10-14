@@ -102,6 +102,10 @@ void GxDirect::XWindow::setFullscreen(BOOL state){
 	m_bFullscreenShould = state;
 }
 
+BOOL GxDirect::XWindow::getFullscreen() {
+	return m_bFullscreenCurrent;
+}
+
 void GxDirect::XWindow::beginFrame(ID3D12GraphicsCommandList* ptrCmdList) {
 	// Redirect to driver
 	m_ptrDriver->beginFrame(ptrCmdList);

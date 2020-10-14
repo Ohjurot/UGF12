@@ -130,29 +130,25 @@ void GxRenderIO::CmdListManger::executeCommandLists(){
 	m_psFramePoolState = FramePoolState::STATE_EXECUTING;
 }
 
-void GxRenderIO::CmdListManger::waitForCommandLists(){
-	// Check state of list
-	if (m_psFramePoolState != FramePoolState::STATE_EXECUTING) {
-		// If not throw exeption (Out of command lists)
-		throw EXEPTION_HR(L"Call on GxRenderIO::CmdListManger::waitForCommandLists(...) is not expected while frame is being recorded", E_ABORT);
-	}
-	
+void GxRenderIO::CmdListManger::waitForCommandLists(){	
 	// Wait for command list
 	m_ptrCmdQue->waitForValue(m_uiExecutionValue);
 
-	// Flush command lists and add to idle
-	for (UINT i = 0; i < *m_ptrFramesStockCount; i++) {
-		m_ptrsFramesLists[i]->flush();
-		if (!m_clPoolIdle.push(m_ptrsFramesLists[i])) {
-			throw EXEPTION_HR(L"Idle Command List Pool was not able to manage own list!", E_ABORT);
+	if (m_psFramePoolState == FramePoolState::STATE_EXECUTING) {
+		// Flush command lists and add to idle
+		for (UINT i = 0; i < *m_ptrFramesStockCount; i++) {
+			m_ptrsFramesLists[i]->flush();
+			if (!m_clPoolIdle.push(m_ptrsFramesLists[i])) {
+				throw EXEPTION_HR(L"Idle Command List Pool was not able to manage own list!", E_ABORT);
+			}
 		}
+
+		// Set stock count to zero
+		*m_ptrFramesStockCount = 0;
+
+		// Give back controle
+		m_clPoolFrame.getPointer_unlock();
 	}
-
-	// Set stock count to zero
-	*m_ptrFramesStockCount = 0;
-
-	// Give back controle
-	m_clPoolFrame.getPointer_unlock();
 
 	// Set state
 	m_psFramePoolState = FramePoolState::STATE_RECORD;

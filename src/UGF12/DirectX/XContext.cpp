@@ -134,6 +134,60 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 	m_uiIncrementRtv = m_ptrDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	m_uiIncrementDsv = m_ptrDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	m_uiIncrementSrv = m_ptrDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	// Build String
+	std::wstringstream wss;
+	
+	// DX Feature level
+	wss << L"DX12 (FL";
+	switch (m_flCreate) {
+		case D3D_FEATURE_LEVEL_11_0:
+			wss << L"11_0)";
+			break;
+		case D3D_FEATURE_LEVEL_11_1:
+			wss << L"11_1)";
+			break;
+		case D3D_FEATURE_LEVEL_12_0:
+			wss << L"12_0)";
+			break;
+		case D3D_FEATURE_LEVEL_12_1:
+			wss << L"12_1)";
+			break;
+	}
+
+	// Windows sdk
+	wss << L" SDK Version: ";
+	switch (WDK_NTDDI_VERSION) {
+		case NTDDI_WIN10:
+			wss << L"Win10";
+			break;
+		case NTDDI_WIN10_TH2:
+			wss << L"Win10 TH2";
+			break;
+		case NTDDI_WIN10_RS1:
+			wss << L"Win10 RS1";
+			break;
+		case NTDDI_WIN10_RS2:
+			wss << L"Win10 RS2";
+			break;
+		case NTDDI_WIN10_RS3:
+			wss << L"Win10 RS3";
+			break;
+		case NTDDI_WIN10_RS4:
+			wss << L"Win10 RS4";
+			break;
+		case NTDDI_WIN10_RS5:
+			wss << L"Win10 RS5";
+			break;
+		case NTDDI_WIN10_19H1:
+			wss << L"Win10 19H1";
+			break;
+		case NTDDI_WIN10_VB:
+			wss << L"Win10 VB";
+			break;
+	}
+
+	m_wstrFeatures = wss.str();
 }
 
 GxDirect::XContext::~XContext() {
@@ -165,6 +219,10 @@ DXGI_ADAPTER_DESC GxDirect::XContext::getGpuInfo() {
 
 D3D_FEATURE_LEVEL GxDirect::XContext::getFeatureLevel() {
 	return m_flCreate;
+}
+
+std::wstring& GxDirect::XContext::getFeatureString() {
+	return m_wstrFeatures;
 }
 
 UINT GxDirect::XContext::getIncrmentSrv() {

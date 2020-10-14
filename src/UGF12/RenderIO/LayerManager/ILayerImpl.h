@@ -17,11 +17,6 @@ namespace GxRenderIO {
 			UINT64 frameIndex = 0;
 
 			/// <summary>
-			/// Index of the resource currently used
-			/// </summary>
-			UINT resourceIndex = 0;
-
-			/// <summary>
 			/// Start time of the Frame
 			/// </summary>
 			GxUtil::TIMESTAMP frameStartTime = 0;

@@ -34,6 +34,12 @@ namespace GxDirect {
 			void setFullscreen(BOOL state);
 
 			/// <summary>
+			/// Restrive fullscreen state
+			/// </summary>
+			/// <returns>Current fullscreen state</returns>
+			BOOL getFullscreen();
+
+			/// <summary>
 			/// Begin a frame on this window
 			/// </summary>
 			/// <param name="ptrCmdList">Command list used to draw on window</param>

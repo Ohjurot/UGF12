@@ -11,11 +11,9 @@ GxRenderIO::LayerStack::Manager::Manager(GxDirect::XContext* ptrContext, UINT cm
 	// Increment ref count
 	m_ptrContext->IncRef();
 
-	// Create ques and manager
-	for (UINT i = 0; i < 2; i++) {
-		m_ptrsCmdQues[i] = new GxDirect::XCmdQueue(ptrContext);
-		m_ptrsCmdListMangers[i] = new GxRenderIO::CmdListManger(ptrContext, m_ptrsCmdQues[i], cmdListCount);
-	}
+	// Create que and manager
+	m_ptrCmdQues = new GxDirect::XCmdQueue(ptrContext);
+	m_ptrCmdListManger = new GxRenderIO::CmdListManger(ptrContext, m_ptrCmdQues, cmdListCount);
 
 	// Compile shader
 	GxRenderIO::LayerStack::Shader::compile();
@@ -90,17 +88,25 @@ GxRenderIO::LayerStack::Manager::Manager(GxDirect::XContext* ptrContext, UINT cm
 	psoDesk.pRootSignature = m_ptrRootSignature;
 	GxRenderIO::LayerStack::Shader::getVertexShader((void**)&psoDesk.VS.pShaderBytecode, &psoDesk.VS.BytecodeLength);
 	GxRenderIO::LayerStack::Shader::getPixelShader((void**)&psoDesk.PS.pShaderBytecode, &psoDesk.PS.BytecodeLength);
-	psoDesk.StreamOutput = {NULL, 0, NULL, 0, 0};
+	psoDesk.StreamOutput = {
+		NULL, 
+		0, 
+		NULL, 
+		0, 
+		0
+	};
 	psoDesk.BlendState.AlphaToCoverageEnable = FALSE;
 	psoDesk.BlendState.IndependentBlendEnable = FALSE;
-	psoDesk.BlendState.RenderTarget[0] = {
-		FALSE,
-		FALSE,
-		D3D12_BLEND_ONE,	D3D12_BLEND_ZERO,	D3D12_BLEND_OP_ADD,
-		D3D12_BLEND_ONE,	D3D12_BLEND_ZERO,	D3D12_BLEND_OP_ADD,
-		D3D12_LOGIC_OP_NOOP,
-		D3D12_COLOR_WRITE_ENABLE_ALL
-	};
+	psoDesk.BlendState.RenderTarget[0].BlendEnable = TRUE;
+	psoDesk.BlendState.RenderTarget[0].LogicOpEnable = FALSE;
+	psoDesk.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	psoDesk.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	psoDesk.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	psoDesk.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
+	psoDesk.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	psoDesk.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	psoDesk.BlendState.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	psoDesk.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	psoDesk.RasterizerState = {
 		D3D12_FILL_MODE_SOLID,
 		D3D12_CULL_MODE_NONE,
@@ -149,16 +155,16 @@ GxRenderIO::LayerStack::Manager::Manager(GxDirect::XContext* ptrContext, UINT cm
 }
 
 GxRenderIO::LayerStack::Manager::~Manager() {	
-	// Delete layers
+	// Wait and Delete layers
 	for (UINT i = 0; i < m_uiLayersUsed; i++) {
+		m_ptrsLayers[i]->waitForFrame();
 		delete m_ptrsLayers[i];
 	}
 
 	// Delete managers and ques
-	for (UINT i = 0; i < 2; i++) {
-		delete m_ptrsCmdListMangers[i];
-		delete m_ptrsCmdQues[i];
-	}
+	m_ptrCmdListManger->flush();
+	delete m_ptrCmdListManger;
+	delete m_ptrCmdQues;
 
 	// Rlease root and pso
 	COM_RELEASE(m_ptrPipelineState);
@@ -171,9 +177,8 @@ GxRenderIO::LayerStack::Manager::~Manager() {
 	COM_RELEASE(m_ptrUploadBuffer);
 	COM_RELEASE(m_ptrConstBuffer);
 
-	// Release Decriptor heaps
-	COM_RELEASE(m_ptrsDecriptorHeaps[0]);
-	COM_RELEASE(m_ptrsDecriptorHeaps[1]);
+	// Release Decriptor heap
+	COM_RELEASE(m_ptrDecriptorHeap);
 
 	// Decrement ref
 	m_ptrContext->DecRef();
@@ -186,7 +191,7 @@ void GxRenderIO::LayerStack::Manager::insertLayer(GxRenderIO::LayerStack::ILayer
 	}
 
 	// Calculate affinity mask
-	DWORD affintyMask = 0x00 || (1UL << ((m_uiCurrentBufferIndex % GxUtil::SystemMetrics::getCpuCoresCount())));
+	DWORD affintyMask = (1 << ( m_uiLayersUsed % GxUtil::SystemMetrics::getCpuCoresCount() ));
 
 	// Create layer
 	m_ptrsLayers[m_uiLayersUsed] = new GxRenderIO::LayerStack::Layer(m_ptrContext, m_uiWidth, m_uiHeight, ptrImpl, affintyMask);
@@ -195,7 +200,7 @@ void GxRenderIO::LayerStack::Manager::insertLayer(GxRenderIO::LayerStack::ILayer
 	m_uiLayersUsed++;
 }
 
-void GxRenderIO::LayerStack::Manager::update(GxDirect::XCmdList* ptrCmdList) {
+void GxRenderIO::LayerStack::Manager::init(GxDirect::XCmdList* ptrCmdList) {
 	// Get Devide
 	ID3D12Device* ptrDevice;
 	m_ptrContext->getDevice(&ptrDevice);
@@ -208,12 +213,9 @@ void GxRenderIO::LayerStack::Manager::update(GxDirect::XCmdList* ptrCmdList) {
 	deskHeapDesk.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	deskHeapDesk.NodeMask = NULL;
 
-	// Create heaps
+	// Create heap
 	HRESULT hr = S_OK;
-	if (FAILED(hr = ptrDevice->CreateDescriptorHeap(&deskHeapDesk, IID_PPV_ARGS(&m_ptrsDecriptorHeaps[0])))) {
-		throw EXEPTION_HR(L"ID3D12Device->CreateDescriptorHeap(...)", hr);
-	}
-	if (FAILED(hr = ptrDevice->CreateDescriptorHeap(&deskHeapDesk, IID_PPV_ARGS(&m_ptrsDecriptorHeaps[1])))) {
+	if (FAILED(hr = ptrDevice->CreateDescriptorHeap(&deskHeapDesk, IID_PPV_ARGS(&m_ptrDecriptorHeap)))) {
 		throw EXEPTION_HR(L"ID3D12Device->CreateDescriptorHeap(...)", hr);
 	}
 
@@ -228,9 +230,8 @@ void GxRenderIO::LayerStack::Manager::update(GxDirect::XCmdList* ptrCmdList) {
 }
 
 void GxRenderIO::LayerStack::Manager::flushAndResize(UINT width, UINT height) {
-	// Flush managers
-	m_ptrsCmdListMangers[0]->flush();
-	m_ptrsCmdListMangers[1]->flush();
+	// Flush manager
+	m_ptrCmdListManger->flush();
 
 	// Resize all layers
 	for (UINT i = 0; i < m_uiLayersUsed; i++) {
@@ -252,41 +253,30 @@ void GxRenderIO::LayerStack::Manager::flushAndResize(UINT width, UINT height) {
 	fillDescHeaps();
 }
 
-void GxRenderIO::LayerStack::Manager::startFrameExecution() {
-	// Stop timer
+void GxRenderIO::LayerStack::Manager::execute(GxDirect::XWindow* ptrWindow, GxDirect::XCmdList* ptrWindowList, BOOL vsync){
 	m_stopWatch.stop();
-	
-	// Build frame info
-	m_frameInfo.frameIndex++;
-	m_frameInfo.resourceIndex = m_uiCurrentBufferIndex;
 	m_frameInfo.deltaTMs = m_stopWatch.getElapsedMs();
-	m_frameInfo.frameStartTime = GxUtil::HPC::queryCounter();
 	
 	// Dispatch layers
 	for (UINT i = 0; i < m_uiLayersUsed; i++) {
 		// Check if layer is enabled
 		if (m_ptrsLayers[i]->getEnabled()) {
-			// Wait for frame
-			m_ptrsLayers[i]->waitForFrame();
-			// Start frame
-			m_ptrsLayers[i]->dispatchFrame(&m_frameInfo, m_ptrsCmdListMangers[m_uiCurrentBufferIndex], m_uiCurrentBufferIndex);
+			// Start execution
+			m_ptrsLayers[i]->dispatchFrame(&m_frameInfo, m_ptrCmdListManger);
 		}
 	}
 
-	// Execute cmd list of last frame
-	m_ptrsCmdListMangers[(m_uiCurrentBufferIndex + 1) % 2]->executeCommandLists();
-
-	// Reset watch
 	m_stopWatch.reset();
 	m_stopWatch.start();
-}
 
-void GxRenderIO::LayerStack::Manager::drawLastFrame(GxDirect::XWindow* ptrWindow, GxDirect::XCmdList* ptrWindowList, BOOL vsync){
-	// Set buffer index
-	m_uiCurrentBufferIndex = (m_uiCurrentBufferIndex + 1) % 2;
-	
-	// Wait for other frame
-	m_ptrsCmdListMangers[m_uiCurrentBufferIndex]->waitForCommandLists();
+	// Wait for execution
+	for (UINT i = 0; i < m_uiLayersUsed; i++) {
+		m_ptrsLayers[i]->waitForFrame();
+	}
+
+	// Execute (LAST) frame and wait for it
+	m_ptrCmdListManger->executeCommandLists();
+	m_ptrCmdListManger->waitForCommandLists();
 
 	// Copy Buffer if required
 	updateConstBuffer(ptrWindowList);
@@ -300,10 +290,10 @@ void GxRenderIO::LayerStack::Manager::drawLastFrame(GxDirect::XWindow* ptrWindow
 
 	// Set Framebuffers
 	ID3D12DescriptorHeap* arr[] = {
-		m_ptrsDecriptorHeaps[m_uiCurrentBufferIndex]
+		m_ptrDecriptorHeap
 	};
 	ptrWindowList->get()->SetDescriptorHeaps(1, arr);
-	ptrWindowList->get()->SetGraphicsRootDescriptorTable(1, m_ptrsDecriptorHeaps[m_uiCurrentBufferIndex]->GetGPUDescriptorHandleForHeapStart());
+	ptrWindowList->get()->SetGraphicsRootDescriptorTable(1, m_ptrDecriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
 	// Begin frame on window
 	ptrWindow->beginFrame(ptrWindowList->get());
@@ -324,8 +314,8 @@ void GxRenderIO::LayerStack::Manager::drawLastFrame(GxDirect::XWindow* ptrWindow
 	ptrWindow->endFrame(ptrWindowList->get());
 
 	// Execute and wait
-	ptrWindowList->wait();
 	ptrWindowList->execute();
+	ptrWindowList->wait();
 
 	// Present
 	ptrWindow->present(vsync);
@@ -342,19 +332,16 @@ BOOL GxRenderIO::LayerStack::Manager::setLayerEnabled(UINT index, BOOL enabled){
 }
 
 void GxRenderIO::LayerStack::Manager::fillDescHeaps(){
-	// For all indexes (0/1)
-	for (UINT resIndex = 0; resIndex < 2; resIndex++) {
-		// For all layers
-		for (UINT layerNumber = 0; layerNumber < m_uiLayersUsed; layerNumber++) {
-			// Create handle to heap start
-			D3D12_CPU_DESCRIPTOR_HANDLE handle = m_ptrsDecriptorHeaps[resIndex]->GetCPUDescriptorHandleForHeapStart();
+	// For all layers
+	for (UINT layerNumber = 0; layerNumber < m_uiLayersUsed; layerNumber++) {
+		// Create handle to heap start
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = m_ptrDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-			// Increment handle
-			handle.ptr += (SIZE_T)m_ptrContext->getIncrmentSrv() * layerNumber;
+		// Increment handle
+		handle.ptr += (SIZE_T)m_ptrContext->getIncrmentSrv() * layerNumber;
 
-			// Create view
-			m_ptrsLayers[layerNumber]->getResourceViewForBuffer(handle, resIndex);
-		}
+		// Create view
+		m_ptrsLayers[layerNumber]->getResourceViewForBuffer(handle);
 	}
 }
 
@@ -425,21 +412,12 @@ void GxRenderIO::LayerStack::Manager::uploadVertex(GxDirect::XCmdList* ptrCmdLis
 	// Unmap buffer
 	ptrUpload->Unmap(0, NULL);
 
-	// Barrier
-	D3D12_RESOURCE_BARRIER barrToCpy;
-	ZeroMemory(&barrToCpy, sizeof(D3D12_RESOURCE_BARRIER));
-
-	// Upload is source
-	barrToCpy.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrToCpy.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrToCpy.Transition.pResource = ptrUpload;
-	barrToCpy.Transition.Subresource = 0;
-	barrToCpy.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
-	barrToCpy.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
-
 	// Copy 
 	ptrCmdList->get()->CopyResource(m_ptrVertexBuffer, ptrUpload);
 
+	// Barrier
+	D3D12_RESOURCE_BARRIER barrToCpy;
+	ZeroMemory(&barrToCpy, sizeof(D3D12_RESOURCE_BARRIER));
 	
 	// Vertex is read
 	barrToCpy.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -477,7 +455,7 @@ void GxRenderIO::LayerStack::Manager::updateConstBuffer(GxDirect::XCmdList* ptrC
 	}
 
 	// check if changed
-	MetaCBuffer cb;
+	MetaCBuffer cb = m_cbLastFrame;
 	cb.layersEnabledMask = mask;
 	if (memcmp(&cb, &m_cbLastFrame, sizeof(MetaCBuffer)) != 0) {
 		// Update internal

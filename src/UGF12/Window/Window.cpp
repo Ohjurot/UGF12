@@ -46,6 +46,12 @@ void GxWindow::Window::runMessageLoop(INT messageLimit) {
 	if (!m_hWindow) {
 		throw EXEPTION(L"runMessageLoop(...) on destroyed window");
 	}
+
+	if (m_bShouldClose) {
+		// Destroy and unset window
+		DestroyWindow(m_hWindow);
+		m_hWindow = NULL;
+	}
 	
 	// Copy int 
 	INT left = messageLimit;
@@ -97,14 +103,7 @@ void GxWindow::Window::setIcon(HICON icon) {
 }
 
 void GxWindow::Window::close() {
-	// Check window
-	if (!m_hWindow) {
-		throw EXEPTION(L"close(...) on destroyed window");
-	}
-
-	// Destroy and unset window
-	DestroyWindow(m_hWindow);
-	m_hWindow = NULL;
+	m_bShouldClose = TRUE;
 }
 
 BOOL GxWindow::Window::isValid() {
@@ -131,7 +130,17 @@ BOOL GxWindow::Window::getKeyState(UINT8 vKey) {
 	return (((1 << 15)) & GetAsyncKeyState(VK_SPACE));
 }
 
+void GxWindow::Window::setUILayer(GxWindow::IMessageReciver* ptrUiLayer){
+	// Redirect
+	m_ptrUiLayer = ptrUiLayer;
+}
+
 BOOL GxWindow::Window::handleWindowMessage(LRESULT* ptrResult, HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {	
+	// Handle debug ui if existring
+	if (m_ptrUiLayer && m_ptrUiLayer->handleWindowMessage(ptrResult, wnd, msg, wParam, lParam)) {
+		return TRUE;
+	}
+	
 	// Check for message
 	switch (msg) {
 		case WM_CLOSE:

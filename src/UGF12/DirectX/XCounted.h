@@ -26,6 +26,6 @@ namespace GxDirect {
 			/// <summary>
 			/// Ref count for external class refernce
 			/// </summary>
-			UINT m_uiRefCount = 0;
+			volatile LONG64 m_uiRefCount = 0;
 	};
 }
