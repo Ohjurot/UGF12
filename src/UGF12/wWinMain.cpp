@@ -4,20 +4,26 @@
 #include <UGF12/Util/StrConverter.h>
 #include <UGF12/Util/Time/HPC.h>
 #include <UGF12/Util/Time/StopWatch.h>
+#include <UGF12/Util/IWbem/IWbemProvider.h>
 
 #include <UGF12/DirectX/XContext.h>
-#include <UGF12/DirectX/XFeature.h>
 #include <UGF12/DirectX/XWindow.h>
 #include <UGF12/DirectX/XWndDriver.h>
 #include <UGF12/DirectX/XCmdQueue.h>
 #include <UGF12/DirectX/XCmdList.h>
+#include <UGF12/DirectX/XFeatureSupport.h>
 
 #include <UGF12/RenderIO/Executing/AsyncCmdExecutor.h>
-
 #include <UGF12/RenderIO/LayerManager/ILayerImpl.h>
 #include <UGF12/RenderIO/LayerManager/LayerStackManager.h>
 
+// DEBUG
 #include <UGF12/Layers/DebugUI/DebugUILayer.h>
+#include <UGF12/Util/FileSystem/FileSystem.h>
+#include <UGF12/Util/FileSystem/Impls/FSWindows.h>
+#include <UGF12/Util/FileSystem/FSProvider.h>
+
+// DEBUG
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
@@ -56,19 +62,11 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 			// Create RTV for buffer
 			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_RENDER_TARGET, ptrCmdListProxy->get());
 
-			// Clear Color (TEMP)
-			const static FLOAT arr[] = {
-				1.0f,
-				0.0f,
-				0.0f,
-				1.0f
-			};
-
 			// Create RTV Handle
 			D3D12_CPU_DESCRIPTOR_HANDLE handle = m_ptrRtvHeap->GetCPUDescriptorHandleForHeapStart();
 
 			ptrCmdListProxy->get()->OMSetRenderTargets(1, &handle, 0, NULL);
-			ptrCmdListProxy->get()->ClearRenderTargetView(handle, arr, 0, NULL);
+			ptrCmdListProxy->get()->ClearRenderTargetView(handle, ptrFrameBuffer->getClearValue().color, 0, NULL);
 			ptrFrameBuffer->barrier(D3D12_RESOURCE_STATE_GENERIC_READ, ptrCmdListProxy->get());
 		}
 		
@@ -111,6 +109,14 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 			throw EXEPTION_HR(L"CoInitialize(...)", hrCom);
 		}
 
+		// Coinit safe
+		if (FAILED(hrCom = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL))) {
+			throw EXEPTION_HR(L"CoInitializeSecurity(...)", hrCom);
+		}
+
+		// Startup WMI
+		GxUtil::IWebmProvider::Init();
+
 		// Startup Async command worker
 		GxRenderIO::AsyncCmdExecutor::init(48);
 
@@ -145,10 +151,14 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		// Create layerstack
 		GxRenderIO::LayerStack::Manager* ptrLayManager = new GxRenderIO::LayerStack::Manager(ptrContext, 24, 1920, 1080);
 
+		// Vsync
+		BOOL vsync = FALSE;
 
 		// DEBUG
+		GxUtil::FS::FileSystem subSys(UGF12_APP_FS, L"data\\images");
+
 		Impl imp(ptrContext);
-		UGF12::DebugUI::DebugUILayer debugUiLayer(ptrContext, ptrWindow);
+		UGF12::DebugUI::DebugUILayer debugUiLayer(ptrContext, ptrWindow, &vsync);
 
 		ptrLayManager->insertLayer(&imp);
 		ptrLayManager->insertLayer(&debugUiLayer);
@@ -165,7 +175,7 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 			ptrWindow->runMessageLoop();
 
 			// Run layer stack
-			ptrLayManager->execute(ptrWindow, ptrCmdList);
+			ptrLayManager->execute(ptrWindow, ptrCmdList, vsync);
 
 			// Resize window if required
 			if (ptrWindow->resizeRequested()) {
@@ -208,6 +218,9 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 
 		// Shutdown Async command worker
 		GxRenderIO::AsyncCmdExecutor::destroy();
+
+		// Shutdown WMI
+		GxUtil::IWebmProvider::Destroy();
 
 		// Shutdown COM
 		CoUninitialize();

@@ -26,7 +26,7 @@ void GxRenderIO::LayerStack::Shader::compile(){
 			
 			// Build message
 			std::wstringstream wss;
-			wss << L"D3DCompile(...) for vs_5_1" << std::endl;
+			wss << L"D3DCompile(...) for vs_5_1:" << std::endl;
 			wss << GxUtil::StrConverter::ConvertN2W(errStr).c_str();
 
 			throw EXEPTION_HR(wss.str(), hr);
@@ -39,7 +39,7 @@ void GxRenderIO::LayerStack::Shader::compile(){
 
 			// Build message
 			std::wstringstream wss;
-			wss << L"D3DCompile(...) for ps_5_1" << std::endl;
+			wss << L"D3DCompile(...) for ps_5_1:" << std::endl;
 			wss << GxUtil::StrConverter::ConvertN2W(errStr).c_str();
 
 			throw EXEPTION_HR(wss.str(), hr);

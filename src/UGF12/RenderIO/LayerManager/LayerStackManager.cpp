@@ -191,7 +191,7 @@ void GxRenderIO::LayerStack::Manager::insertLayer(GxRenderIO::LayerStack::ILayer
 	}
 
 	// Calculate affinity mask
-	DWORD affintyMask = (1 << ( m_uiLayersUsed % GxUtil::SystemMetrics::getCpuCoresCount() ));
+	DWORD affintyMask = (1 << ( m_uiLayersUsed % GxUtil::SystemMetrics::getCpuLogicalCoreCount() ));
 
 	// Create layer
 	m_ptrsLayers[m_uiLayersUsed] = new GxRenderIO::LayerStack::Layer(m_ptrContext, m_uiWidth, m_uiHeight, ptrImpl, affintyMask);
@@ -254,9 +254,14 @@ void GxRenderIO::LayerStack::Manager::flushAndResize(UINT width, UINT height) {
 }
 
 void GxRenderIO::LayerStack::Manager::execute(GxDirect::XWindow* ptrWindow, GxDirect::XCmdList* ptrWindowList, BOOL vsync){
+	// Stop the watch and copy elapsed time
 	m_stopWatch.stop();
 	m_frameInfo.deltaTMs = m_stopWatch.getElapsedMs();
 	
+	// Rest and start stopwatch
+	m_stopWatch.reset();
+	m_stopWatch.start();
+
 	// Dispatch layers
 	for (UINT i = 0; i < m_uiLayersUsed; i++) {
 		// Check if layer is enabled
@@ -266,15 +271,12 @@ void GxRenderIO::LayerStack::Manager::execute(GxDirect::XWindow* ptrWindow, GxDi
 		}
 	}
 
-	m_stopWatch.reset();
-	m_stopWatch.start();
-
 	// Wait for execution
 	for (UINT i = 0; i < m_uiLayersUsed; i++) {
 		m_ptrsLayers[i]->waitForFrame();
 	}
 
-	// Execute (LAST) frame and wait for it
+	// Execute frame and wait for it
 	m_ptrCmdListManger->executeCommandLists();
 	m_ptrCmdListManger->waitForCommandLists();
 
@@ -303,7 +305,7 @@ void GxRenderIO::LayerStack::Manager::execute(GxDirect::XWindow* ptrWindow, GxDi
 	ptrWindowList->get()->RSSetScissorRects(1, &m_sicRect);
 
 	// Set Input type
-	static D3D12_VERTEX_BUFFER_VIEW view = {m_ptrVertexBuffer->GetGPUVirtualAddress(), sizeof(float) * 4 * 4, sizeof(float) * 4 };
+	static D3D12_VERTEX_BUFFER_VIEW view = {m_ptrVertexBuffer->GetGPUVirtualAddress(), sizeof(c_vertexBuffer), sizeof(float) * 4 };
 	ptrWindowList->get()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	ptrWindowList->get()->IASetVertexBuffers(0, 1, &view);
 
@@ -332,13 +334,16 @@ BOOL GxRenderIO::LayerStack::Manager::setLayerEnabled(UINT index, BOOL enabled){
 }
 
 void GxRenderIO::LayerStack::Manager::fillDescHeaps(){
+	// Create handle to heap start
+	D3D12_CPU_DESCRIPTOR_HANDLE handle = m_ptrDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	
 	// For all layers
 	for (UINT layerNumber = 0; layerNumber < m_uiLayersUsed; layerNumber++) {
-		// Create handle to heap start
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = m_ptrDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
-		// Increment handle
-		handle.ptr += (SIZE_T)m_ptrContext->getIncrmentSrv() * layerNumber;
+		// If not first layer increment handle
+		if (layerNumber) {
+			// Increment handle
+			handle.ptr += (SIZE_T)m_ptrContext->getIncrmentSrv();
+		}
 
 		// Create view
 		m_ptrsLayers[layerNumber]->getResourceViewForBuffer(handle);

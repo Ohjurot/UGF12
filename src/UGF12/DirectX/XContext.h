@@ -61,6 +61,12 @@ namespace GxDirect {
 			/// <returns></returns>
 			UINT getIncrmentRtv();
 
+			/// <summary>
+			/// Get adapter pointer 
+			/// </summary>
+			/// <param name="ppAdapter">Pointer to adpater pointer</param>
+			void getAdapter(IDXGIAdapter** ppAdapter);
+
 			// Delete unuse
 			void operator=(const XContext&) = delete;
 			XContext(const XContext&) = delete;
@@ -83,7 +89,7 @@ namespace GxDirect {
 			/// <summary>
 			/// Info about the running gpu
 			/// </summary>
-			DXGI_ADAPTER_DESC m_adapterInfo;
+			IDXGIAdapter* m_ptrAdapter = NULL;
 
 			/// <summary>
 			/// Handle increment for RTV

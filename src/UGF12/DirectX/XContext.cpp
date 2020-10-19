@@ -3,7 +3,6 @@
 
 GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BOOL debugLayer) {
 	HRESULT hr;
-	IDXGIAdapter* ptrTargetAdapter = NULL;
 	BOOL gpuFound = FALSE;
 
 	// Create Factory
@@ -13,11 +12,11 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 	}
 
 	// Find Adapter by index and name
-	if (idxPreveredGpu >= 0 && ptrFactory->EnumAdapters(idxPreveredGpu, &ptrTargetAdapter) == S_OK) {
+	if (idxPreveredGpu >= 0 && ptrFactory->EnumAdapters(idxPreveredGpu, &m_ptrAdapter) == S_OK) {
 		// Extract info
 		DXGI_ADAPTER_DESC gpuDesk;
 		ZeroMemory(&gpuDesk, sizeof(DXGI_ADAPTER_DESC));
-		if (FAILED(hr = ptrTargetAdapter->GetDesc(&gpuDesk))) {
+		if (FAILED(hr = m_ptrAdapter->GetDesc(&gpuDesk))) {
 			throw EXEPTION_HR(L"IDXGIAdapter->GetDesc(...)", hr);
 		}
 
@@ -26,7 +25,7 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 			gpuFound = TRUE;
 		}
 		else {
-			COM_RELEASE(ptrTargetAdapter);
+			COM_RELEASE(m_ptrAdapter);
 		}
 	}
 
@@ -34,11 +33,11 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 	if (!gpuFound && strPreferedGpu.length() > 0) {
 		// For every adaper
 		UINT idx = 0;
-		while (ptrFactory->EnumAdapters(idx, &ptrTargetAdapter) == S_OK) {
+		while (ptrFactory->EnumAdapters(idx, &m_ptrAdapter) == S_OK) {
 			// Extract info
 			DXGI_ADAPTER_DESC gpuDesk;
 			ZeroMemory(&gpuDesk, sizeof(DXGI_ADAPTER_DESC));
-			if (FAILED(hr = ptrTargetAdapter->GetDesc(&gpuDesk))) {
+			if (FAILED(hr = m_ptrAdapter->GetDesc(&gpuDesk))) {
 				throw EXEPTION_HR(L"IDXGIAdapter->GetDesc(...)", hr);
 			}
 
@@ -49,14 +48,14 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 			}
 
 			// Increment index
-			COM_RELEASE(ptrTargetAdapter);
+			COM_RELEASE(m_ptrAdapter);
 			idx++;
 		}
 	}
 
 	// Get adpater zero if no is found
 	if (!gpuFound) {
-		if (FAILED(ptrFactory->EnumAdapters(0, &ptrTargetAdapter))) {
+		if (FAILED(ptrFactory->EnumAdapters(0, &m_ptrAdapter))) {
 			throw EXEPTION(L"In order to use the programm a hardware gpu is required!");
 		}
 
@@ -78,7 +77,7 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 	}
 
 	// Create device low featureset (FL 11_0; Min Dx12)
-	if (FAILED(hr = D3D12CreateDevice(ptrTargetAdapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_ptrDevice)))) {
+	if (FAILED(hr = D3D12CreateDevice(m_ptrAdapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_ptrDevice)))) {
 		throw EXEPTION_HR(L"D3D12CreateDevice(...)", hr);
 	}
 
@@ -106,7 +105,7 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 	COM_RELEASE(m_ptrDevice);
 
 	// Create device (max supported feature level)
-	if (FAILED(hr = D3D12CreateDevice(ptrTargetAdapter, fsD.MaxSupportedFeatureLevel, IID_PPV_ARGS(&m_ptrDevice)))) {
+	if (FAILED(hr = D3D12CreateDevice(m_ptrAdapter, fsD.MaxSupportedFeatureLevel, IID_PPV_ARGS(&m_ptrDevice)))) {
 		throw EXEPTION_HR(L"D3D12CreateDevice(...)", hr);
 	}
 
@@ -122,13 +121,11 @@ GxDirect::XContext::XContext(std::wstring strPreferedGpu, INT idxPreveredGpu, BO
 	}
 
 	// Get info about current gpu
-	ZeroMemory(&m_adapterInfo, sizeof(DXGI_ADAPTER_DESC));
-	if (FAILED(hr = ptrTargetAdapter->GetDesc(&m_adapterInfo))) {
+	DXGI_ADAPTER_DESC adapterDesk;
+	ZeroMemory(&adapterDesk, sizeof(DXGI_ADAPTER_DESC));
+	if (FAILED(hr = m_ptrAdapter->GetDesc(&adapterDesk))) {
 		throw EXEPTION_HR(L"IDXGIAdapter->GetDesc(...)", hr);
 	}
-
-	// Adapter is no longer required
-	COM_RELEASE(ptrTargetAdapter);
 
 	// Read incrments
 	m_uiIncrementRtv = m_ptrDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -202,6 +199,9 @@ GxDirect::XContext::~XContext() {
 
 	// Finaly release devie
 	COM_RELEASE(m_ptrDevice);
+
+	// Release adapter
+	COM_RELEASE(m_ptrAdapter);
 }
 
 void GxDirect::XContext::getDevice(ID3D12Device** ppDevice){
@@ -213,8 +213,18 @@ void GxDirect::XContext::getDevice(ID3D12Device** ppDevice){
 }
 
 DXGI_ADAPTER_DESC GxDirect::XContext::getGpuInfo() {
+	// Create Adapter descritor
+	DXGI_ADAPTER_DESC adapterDesk;
+	ZeroMemory(&adapterDesk, sizeof(DXGI_ADAPTER_DESC));
+
+	// Query adapter
+	HRESULT hr;
+	if (FAILED(hr = m_ptrAdapter->GetDesc(&adapterDesk))) {
+		throw EXEPTION_HR(L"IDXGIAdapter->GetDesc(...)", hr);
+	}
+
 	// Return pointer to internal info
-	return m_adapterInfo;
+	return adapterDesk;
 }
 
 D3D_FEATURE_LEVEL GxDirect::XContext::getFeatureLevel() {
@@ -235,4 +245,11 @@ UINT GxDirect::XContext::getIncrmentDsv() {
 
 UINT GxDirect::XContext::getIncrmentRtv() {
 	return m_uiIncrementRtv;
+}
+
+void GxDirect::XContext::getAdapter(IDXGIAdapter** ppAdapter){
+	// Set pointer
+	*ppAdapter = m_ptrAdapter;
+	// Increment ref
+	m_ptrAdapter->AddRef();
 }

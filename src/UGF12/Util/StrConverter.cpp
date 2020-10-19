@@ -52,3 +52,47 @@ std::wstring GxUtil::StrConverter::TranslateHRESULT(HRESULT hr) {
     // Return new string
     return out;
 }
+
+std::string GxUtil::StrConverter::memoryToString(UINT64 memory) {
+    // Left memory
+    UINT divisionsCount = 0;
+    DOUBLE left = memory;
+
+    // While dividable
+    while (left >= 1024.0) {
+        left = left / 1024.0;
+        divisionsCount++;
+    }
+
+    // Create string
+    std::stringstream ss;
+    ss << left;
+
+    // Typename
+    switch (divisionsCount) {
+        case 0:
+            ss << " Bytes";
+            break;
+        case 1:
+            ss << " KiB";
+            break;
+        case 2:
+            ss << " MiB";
+            break;
+        case 3:
+            ss << " GiB";
+            break;
+        case 4:
+            ss << " TiB";
+            break;
+        case 5:
+            ss << " PiB";
+            break;
+        default:
+            ss << " * (1024 ^ " << (divisionsCount - 5) << ") PiB";
+            break;
+    }
+
+    // Return string
+    return ss.str();
+}

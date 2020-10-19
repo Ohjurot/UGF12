@@ -5,7 +5,6 @@
 #include <UGF12/Util/SystemMetrics.h>
 #include <UGF12/Util/Time/StopWatch.h>
 #include <UGF12/Util/Time/HPC.h>
-#include <UGF12/Util/Concurent/ExecutionCounter.h>
 
 #include <UGF12/DirectX/XCmdQueue.h>
 #include <UGF12/DirectX/XCmdList.h>

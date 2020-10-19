@@ -5,7 +5,6 @@
 #include <UGF12/Util/StrConverter.h>
 #include <UGF12/Util/Time/StopWatch.h>
 #include <UGF12/Util/Concurent/WorkerPayload.h>
-#include <UGF12/Util/Concurent/ExecutionCounter.h>
 
 #include <UGF12/RenderIO/LayerManager/ILayerImpl.h>
 #include <UGF12/RenderIO/Framebuffer.h>

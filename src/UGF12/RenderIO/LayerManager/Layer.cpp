@@ -67,6 +67,8 @@ GxRenderIO::LayerStack::Layer::~Layer() {
 DWORD WINAPI GxRenderIO::LayerStack::Layer::ThreadProc(LPVOID threadParam) {
 	// Gx exeption
 	GxExeption exOutput;
+
+	CoInitialize(NULL);
 	
 	// Call internal
 	try {

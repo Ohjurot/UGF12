@@ -2,7 +2,6 @@
 #include "pch.h"
 
 #include <UGF12/DirectX/XContext.h>
-#include <UGF12/DirectX/XFeature.h>
 
 namespace GxRenderIO {
 	/// <summary>

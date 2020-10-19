@@ -16,10 +16,6 @@ namespace GxUtil {
 			/// Clear all flags on construction
 			/// </summary>
 			WorkerPayload() {
-				// Clear all flags
-				// m_flagCompletion.store(true, std::memory_order_seq_cst);
-				// m_flagStart.store(false, std::memory_order_release);
-
 				// Zero parameter
 				ZeroMemory(&m_param, sizeof(T));
 			}
@@ -28,22 +24,16 @@ namespace GxUtil {
 			/// Signal start condition
 			/// </summary>
 			void startWork() {
-				// Set start flag and clear completion flag
-				// m_flagCompletion.store(false, std::memory_order_release);
-				// m_flagStart.store(true, std::memory_order_seq_cst);
-				InterlockedExchangeNoFence64(&m_flagStart, 1);
-				InterlockedExchangeNoFence64(&m_flagStop, 0);
+				InterlockedExchange64(&m_flagStart, 1);
+				InterlockedExchange64(&m_flagStop, 0);
 			}
 
 			/// <summary>
 			/// Signal completion
 			/// </summary>
 			void completeWork() {
-				// Clear start condition and set completion
-				// m_flagStart.store(false, std::memory_order_release);
-				// m_flagCompletion.store(true, std::memory_order_seq_cst);
-				InterlockedExchangeNoFence64(&m_flagStart, 0);
-				InterlockedExchangeNoFence64(&m_flagStop, 1);
+				InterlockedExchange64(&m_flagStart, 0);
+				InterlockedExchange64(&m_flagStop, 1);
 			}
 
 			/// <summary>
@@ -60,8 +50,7 @@ namespace GxUtil {
 			/// </summary>
 			/// <returns>If operation is done</returns>
 			BOOL isDone() {
-				return (m_flagStop == 1);
-				// return m_flagCompletion.load();
+				return ((m_flagStop == 1) || (m_flagStop == 0 && m_flagStart == 0) );
 			}
 
 
@@ -93,16 +82,6 @@ namespace GxUtil {
 			WorkerPayload(const WorkerPayload&) = delete;
 			void operator=(const WorkerPayload&) = delete;
 		private:			
-			/// <summary>
-			/// Atomic flag for work start condition
-			/// </summary>
-			// std::atomic<bool> m_flagStart;
-
-			/// <summary>
-			/// Atomic flag for work completion condition
-			/// </summary>
-			// std::atomic<bool> m_flagCompletion;
-
 			volatile LONG64 m_flagStart = 0;
 			volatile LONG64 m_flagStop = 1;
 

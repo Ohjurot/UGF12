@@ -1,14 +1,15 @@
 #include "pch.h"
 #include "DebugUILayer.h"
 
-UGF12::DebugUI::DebugUILayer::DebugUILayer(GxDirect::XContext* ptrContext, GxDirect::XWindow* ptrWindow, BOOL visible) :
-	#if defined(_DEBUG)	
+UGF12::DebugUI::DebugUILayer::DebugUILayer(GxDirect::XContext* ptrContext, GxDirect::XWindow* ptrWindow, BOOL* vsyncPtr, BOOL visible) :
+	#if !defined(SHIPPING)	
 		GxRenderIO::LayerStack::ILayerImpl(L"DebugUI", visible),
 	#else
 		GxRenderIO::LayerStack::ILayerImpl(L"DebugUI", FALSE),
 	#endif
 	m_ptrContext(ptrContext),
-	m_ptrWindow(ptrWindow)
+	m_ptrWindow(ptrWindow),
+	m_ptrVsyncBool(vsyncPtr)
 { }
 
 void UGF12::DebugUI::DebugUILayer::Init() {
@@ -58,7 +59,7 @@ void UGF12::DebugUI::DebugUILayer::Init() {
 
 	// Create UI
 	m_ptrInfoHint = new UGF12::DebugUI::UI_InfoHint(m_ptrContext, TRUE);
-	m_ptrMainMenue = new UGF12::DebugUI::UI_MainMenue(m_ptrWindow);
+	m_ptrMainMenue = new UGF12::DebugUI::UI_MainMenue(m_ptrContext, m_ptrWindow, m_ptrInfoHint, m_ptrVsyncBool);
 }
 
 void UGF12::DebugUI::DebugUILayer::Destroy() {
@@ -123,7 +124,6 @@ void UGF12::DebugUI::DebugUILayer::onResourceChange(UINT resource, UINT index, v
 
 			// Create handle
 			D3D12_CPU_DESCRIPTOR_HANDLE hRtv = m_ptrHeapRtv->GetCPUDescriptorHandleForHeapStart();
-			hRtv.ptr += (SIZE_T)m_ptrContext->getIncrmentRtv() * index;
 
 			// Create View
 			ptrBuffer->createRTV(hRtv);
@@ -145,7 +145,7 @@ void UGF12::DebugUI::DebugUILayer::onResize(UINT width, UINT height) {
 }
 
 BOOL UGF12::DebugUI::DebugUILayer::onEnable() {
-	#if defined(_DEBUG)	
+	#if !defined(SHIPPING)	
 		return TRUE;
 	#else
 		return FALSE;
@@ -155,7 +155,7 @@ BOOL UGF12::DebugUI::DebugUILayer::onEnable() {
 BOOL UGF12::DebugUI::DebugUILayer::handleWindowMessage(LRESULT* ptrResult, HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (ImGui_ImplWin32_WndProcHandler(wnd, msg, wParam, lParam)) {
 		// Return true if handled
-		*ptrResult = TRUE;
+		*ptrResult = NULL;
 		return TRUE;
 	}
 	return FALSE;

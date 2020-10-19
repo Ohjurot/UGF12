@@ -32,8 +32,9 @@ namespace UGF12 {
 				/// </summary>
 				/// <param name="ptrContext">Pointe to context</param>
 				/// <param name="ptrWindow">Pointe to window</param>
+				/// <param name="vsyncPtr">Pointer to the vsync bool</param>
 				/// <param name="visible">If the layer should be visible</param>
-				DebugUILayer(GxDirect::XContext* ptrContext, GxDirect::XWindow* ptrWindow, BOOL visible = TRUE);
+				DebugUILayer(GxDirect::XContext* ptrContext, GxDirect::XWindow* ptrWindow, BOOL* vsyncPtr, BOOL visible = TRUE);
 
 				/// <summary>
 				/// Construct
@@ -94,6 +95,11 @@ namespace UGF12 {
 				/// Handle of target window
 				/// </summary>
 				GxDirect::XWindow* m_ptrWindow;
+
+				/// <summary>
+				/// Vsync boolean
+				/// </summary>
+				BOOL* m_ptrVsyncBool;
 
 				/// <summary>
 				/// ImGui descriptor heap

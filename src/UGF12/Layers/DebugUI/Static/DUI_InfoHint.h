@@ -39,6 +39,12 @@ namespace UGF12 {
 				/// <param name="enabled">Enable flag</param>
 				void setEnable(BOOL enabled);
 
+				/// <summary>
+				/// Retrive the enable state
+				/// </summary>
+				/// <returns>If enabled</returns>
+				BOOL getEnable();
+
 				// Delete unsupported
 				UI_InfoHint(const UI_InfoHint&) = delete;
 				void operator==(const UI_InfoHint&) = delete;

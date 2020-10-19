@@ -3,9 +3,12 @@
 
 #include <UGF12/Util/StrConverter.h>
 
+#include <UGF12/DirectX/XContext.h>
 #include <UGF12/DirectX/XWindow.h>
 
 #include <UGF12/Layers/DebugUI/IGuiDrawable.h>
+#include <UGF12/Layers/DebugUI/Static/DUI_InfoHint.h>
+#include <UGF12/Layers/DebugUI/Static/DUI_SysInfo.h>
 
 #include <imgui.h>
 
@@ -19,8 +22,14 @@ namespace UGF12 {
 				/// <summary>
 				/// Create with pointer to window
 				/// </summary>
-				/// <param name="ptrWindow"></param>
-				UI_MainMenue(GxDirect::XWindow* ptrWindow);
+				/// <param name="ptrContext">Pointer to context</param>
+				/// <param name="ptrWindow">Pointer to window</param>
+				/// <param name="ptrInfoHint">Pointer to info hint</param>
+				/// <param name="vsyncPtr">VSync pointer</param>
+				UI_MainMenue(GxDirect::XContext* ptrContext, GxDirect::XWindow* ptrWindow, UGF12::DebugUI::UI_InfoHint* ptrInfoHint, BOOL* vsyncPtr);
+
+				// Delete
+				~UI_MainMenue();
 
 				/// <summary>
 				/// Draw GUI part
@@ -37,6 +46,22 @@ namespace UGF12 {
 				/// Pointer to window
 				/// </summary>
 				GxDirect::XWindow* m_ptrWindow;
+
+				/// <summary>
+				/// Pointer to info hint
+				/// </summary>
+				UGF12::DebugUI::UI_InfoHint* m_ptrInfoHint;
+
+			private:
+				/// <summary>
+				/// System info window
+				/// </summary>
+				UGF12::DebugUI::UI_SysInfo* m_ptrUISysInfo;
+
+				/// <summary>
+				/// Pointer for VSYNC switching
+				/// </summary>
+				BOOL* m_ptrVsyncBool;
 		};
 	}
 }

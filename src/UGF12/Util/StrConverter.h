@@ -25,5 +25,12 @@ namespace GxUtil {
 			/// <param name="hr">Input hresult</param>
 			/// <returns>HRESULTs message as wide string</returns>
 			static std::wstring TranslateHRESULT(HRESULT hr);
+
+			/// <summary>
+			/// Convert a memory integer (base 1024) to a string
+			/// </summary>
+			/// <param name="memory">Input amount of memory</param>
+			/// <returns>Ouptut string</returns>
+			static std::string memoryToString(UINT64 memory);
 	};
 }

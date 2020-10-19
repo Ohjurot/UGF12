@@ -51,9 +51,6 @@
     <ClCompile Include="src\UGF12\DirectX\XCmdList.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\UGF12\DirectX\XFeature.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\UGF12\RenderIO\Framebuffer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -126,13 +123,64 @@
     <ClCompile Include="vendor\imgui\src\imgui_widgets.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\UGF12\Util\Concurent\ExecutionCounter.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_InfoHint.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_Menue.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_SysInfo.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\IWbem\IWbemProvider.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\CPUID.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\FileSystem\Impls\FSWindows.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options0.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\XFeatureSupport.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options1.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options2.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options3.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options4.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options5.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options6.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options7.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_VirtualAddress.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Architecture1.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_CrossNode.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\FileSystem\FileSystem.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\FileSystem\FSProvider.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -180,9 +228,6 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\UGF12\RenderIO\Framebuffer.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UGF12\DirectX\XFeature.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\UGF12\Util\StrConverter.h">
@@ -245,9 +290,6 @@
     <ClInclude Include="src\UGF12\Layers\DebugUI\DebugUILayer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\UGF12\Util\Concurent\ExecutionCounter.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_InfoHint.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -255,6 +297,66 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_Menue.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_SysInfo.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\IWbem\IWbemProvider.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\CPUID.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\FileSystem\IFileSystemImpl.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\FileSystem\Impls\FSWindows.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options0.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\TSysInfo.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\XFeatureSupport.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options1.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options2.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options3.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options4.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options5.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options6.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options7.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_VirtualAddress.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Architecture1.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_CrossNode.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\FileSystem\FileSystem.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\FileSystem\FSProvider.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

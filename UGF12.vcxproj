@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Shipping|x64">
+      <Configuration>Shipping</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -31,6 +35,13 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -42,6 +53,9 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -50,6 +64,12 @@
     <IncludePath>$(SolutionDir)vendor\imgui\include;$(SolutionDir)src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin-int\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)vendor\imgui\include;$(SolutionDir)src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(Configuration)\</IntDir>
@@ -68,7 +88,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;dxgi.lib;d3d12.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dcompiler.lib;dxgi.lib;d3d12.lib;xinput.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -88,25 +108,58 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;dxgi.lib;d3d12.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dcompiler.lib;dxgi.lib;d3d12.lib;xinput.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;SHIPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3dcompiler.lib;dxgi.lib;d3d12.lib;xinput.lib;wbemuuid.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Architecture1.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_CrossNode.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options0.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options1.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options2.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options3.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options4.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options5.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options6.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_Options7.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\FeatureSupport\FS_VirtualAddress.cpp" />
+    <ClCompile Include="src\UGF12\DirectX\XFeatureSupport.cpp" />
     <ClCompile Include="src\UGF12\DirectX\XCmdList.cpp" />
     <ClCompile Include="src\UGF12\DirectX\XCmdQueue.cpp" />
     <ClCompile Include="src\UGF12\DirectX\XContext.cpp" />
     <ClCompile Include="src\UGF12\DirectX\XCounted.cpp" />
-    <ClCompile Include="src\UGF12\DirectX\XFeature.cpp" />
     <ClCompile Include="src\UGF12\DirectX\XWindow.cpp" />
     <ClCompile Include="src\UGF12\DirectX\XWndDriver.cpp" />
     <ClCompile Include="src\UGF12\IO\KeyStates.cpp" />
     <ClCompile Include="src\UGF12\Layers\DebugUI\DebugUILayer.cpp" />
     <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_InfoHint.cpp" />
     <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_Menue.cpp" />
+    <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_SysInfo.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\AsyncCmdExecutor.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListExecutionFlag.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\Executing\CmdListManager.cpp" />
@@ -118,9 +171,13 @@
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\LayerStackManager.cpp" />
     <ClCompile Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.cpp" />
     <ClCompile Include="src\UGF12\Util\CmdArgs.cpp" />
-    <ClCompile Include="src\UGF12\Util\Concurent\ExecutionCounter.cpp" />
     <ClCompile Include="src\UGF12\Util\Concurent\LockGuard.cpp" />
     <ClCompile Include="src\UGF12\Util\Concurent\SpinLock.cpp" />
+    <ClCompile Include="src\UGF12\Util\CPUID.cpp" />
+    <ClCompile Include="src\UGF12\Util\FileSystem\FileSystem.cpp" />
+    <ClCompile Include="src\UGF12\Util\FileSystem\FSProvider.cpp" />
+    <ClCompile Include="src\UGF12\Util\FileSystem\Impls\FSWindows.cpp" />
+    <ClCompile Include="src\UGF12\Util\IWbem\IWbemProvider.cpp" />
     <ClCompile Include="src\UGF12\Util\StrConverter.cpp" />
     <ClCompile Include="src\UGF12\Util\SystemMetrics.cpp" />
     <ClCompile Include="src\UGF12\Util\Time\HPC.cpp" />
@@ -132,35 +189,52 @@
     <ClCompile Include="vendor\imgui\src\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="vendor\imgui\src\imgui_demo.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="vendor\imgui\src\imgui_draw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="vendor\imgui\src\imgui_impl_dx12.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="vendor\imgui\src\imgui_impl_win32.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="vendor\imgui\src\imgui_widgets.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Architecture1.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_CrossNode.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options0.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options1.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options2.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options3.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options4.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options5.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options6.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_Options7.h" />
+    <ClInclude Include="src\UGF12\DirectX\FeatureSupport\FS_VirtualAddress.h" />
+    <ClInclude Include="src\UGF12\DirectX\XFeatureSupport.h" />
     <ClInclude Include="src\UGF12\DirectX\XCmdList.h" />
     <ClInclude Include="src\UGF12\DirectX\XCmdQueue.h" />
     <ClInclude Include="src\UGF12\DirectX\XContext.h" />
     <ClInclude Include="src\UGF12\DirectX\XCounted.h" />
-    <ClInclude Include="src\UGF12\DirectX\XFeature.h" />
     <ClInclude Include="src\UGF12\DirectX\XWindow.h" />
     <ClInclude Include="src\UGF12\DirectX\XWndDriver.h" />
     <ClInclude Include="src\UGF12\IO\KeyBind.h" />
@@ -169,6 +243,7 @@
     <ClInclude Include="src\UGF12\Layers\DebugUI\IGuiDrawable.h" />
     <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_InfoHint.h" />
     <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_Menue.h" />
+    <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_SysInfo.h" />
     <ClInclude Include="src\UGF12\RenderIO\Executing\AsyncCmdExecutor.h" />
     <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListExecutionFlag.h" />
     <ClInclude Include="src\UGF12\RenderIO\Executing\CmdListManager.h" />
@@ -179,18 +254,24 @@
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\Layer.h" />
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\LayerStackManager.h" />
     <ClInclude Include="src\UGF12\RenderIO\LayerManager\LayerStackShader.h" />
-    <ClInclude Include="src\UGF12\Util\Concurent\ExecutionCounter.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\WorkerPayload.h" />
     <ClInclude Include="src\UGF12\Util\CmdArgs.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\ILock.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\LockGuard.h" />
     <ClInclude Include="src\UGF12\Util\Concurent\SpinLock.h" />
+    <ClInclude Include="src\UGF12\Util\CPUID.h" />
     <ClInclude Include="src\UGF12\Util\Exeption.h" />
+    <ClInclude Include="src\UGF12\Util\FileSystem\FileSystem.h" />
+    <ClInclude Include="src\UGF12\Util\FileSystem\FSProvider.h" />
+    <ClInclude Include="src\UGF12\Util\FileSystem\IFileSystemImpl.h" />
+    <ClInclude Include="src\UGF12\Util\FileSystem\Impls\FSWindows.h" />
+    <ClInclude Include="src\UGF12\Util\IWbem\IWbemProvider.h" />
     <ClInclude Include="src\UGF12\Util\StrConverter.h" />
     <ClInclude Include="src\UGF12\Util\SystemMetrics.h" />
     <ClInclude Include="src\UGF12\Util\Time\HPC.h" />
     <ClInclude Include="src\UGF12\Util\Time\StopWatch.h" />
     <ClInclude Include="src\UGF12\Util\Time\Time.h" />
+    <ClInclude Include="src\UGF12\Util\TSysInfo.h" />
     <ClInclude Include="src\UGF12\Window\ClsProc\IMessageReciver.h" />
     <ClInclude Include="src\UGF12\Window\ClsProc\WindowClass.h" />
     <ClInclude Include="src\UGF12\Window\ClsProc\WindowProc.h" />
