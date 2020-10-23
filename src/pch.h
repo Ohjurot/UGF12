@@ -33,5 +33,8 @@
 #include <sstream>
 #include <iomanip>
 
+// == Other include ==
+#include <xxhash.h>
+
 // == UGF12 Defines ==
 #define UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER 1UL

@@ -876,6 +876,8 @@ void UGF12::DebugUI::UI_SysInfo::draw(GxRenderIO::LayerStack::LayerFrameInfo* pt
 						else {
 							m_strFsMsaa = "1X (Quality 0)";
 						}
+
+
 					}
 
 					// === Support MSAA ===

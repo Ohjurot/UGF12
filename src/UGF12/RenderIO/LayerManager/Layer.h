@@ -64,10 +64,22 @@ namespace GxRenderIO {
 				void resize(UINT width, UINT height);
 
 				/// <summary>
+				/// Get layer name
+				/// </summary>
+				/// <returns>Name of layer</returns>
+				std::wstring getLayerName();
+
+				/// <summary>
 				/// Get the enabled state of the layer
 				/// </summary>
 				/// <returns>If the layer is currently enabled</returns>
 				BOOL getEnabled();
+
+				/// <summary>
+				/// Recive the last frame time
+				/// </summary>
+				/// <returns>Frame time in ms</returns>
+				FLOAT getLastFrameTime();
 
 			private:
 				/// <summary>
@@ -77,6 +89,7 @@ namespace GxRenderIO {
 					LayerFrameInfo frameInfo;
 					GxRenderIO::CmdListManger* ptrCmdManager;
 					GxRenderIO::FrameBuffer* ptrFrameBuffer;
+					GxUtil::StopWatch layerWatch;
 				};
 
 			private:
@@ -129,6 +142,11 @@ namespace GxRenderIO {
 				/// Double buffering framebuffers (RTV)
 				/// </summary>
 				GxRenderIO::FrameBuffer m_framebuffer;
+
+				/// <summary>
+				/// Last executions frametime
+				/// </summary>
+				FLOAT m_fLastFrameTime = 0.0f;
 		};
 	}
 }

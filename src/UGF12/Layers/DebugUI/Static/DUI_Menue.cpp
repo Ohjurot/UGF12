@@ -1,37 +1,42 @@
 #include "pch.h"
 #include "DUI_Menue.h"
 
-UGF12::DebugUI::UI_MainMenue::UI_MainMenue(GxDirect::XContext* ptrContext, GxDirect::XWindow* ptrWindow, UGF12::DebugUI::UI_InfoHint* ptrInfoHint, BOOL* vsyncPtr) :
+UGF12::DebugUI::UI_MainMenue::UI_MainMenue(GxDirect::XContext* ptrContext, GxRenderIO::LayerStack::Manager* ptrManager, GxDirect::XWindow* ptrWindow, UGF12::DebugUI::UI_InfoHint* ptrInfoHint, BOOL* vsyncPtr) :
 	m_ptrWindow(ptrWindow),
     m_ptrInfoHint(ptrInfoHint),
-    m_ptrVsyncBool(vsyncPtr)
-{
-    m_ptrUISysInfo = new UGF12::DebugUI::UI_SysInfo(ptrContext);
-}
+    m_ptrVsyncBool(vsyncPtr),
 
-UGF12::DebugUI::UI_MainMenue::~UI_MainMenue() {
-    delete m_ptrUISysInfo;
-}
+    m_uISysInfo(ptrContext),
+    m_uiLayerStack(ptrManager)
+{}
 
 void UGF12::DebugUI::UI_MainMenue::draw(GxRenderIO::LayerStack::LayerFrameInfo* ptrFrameInfo, ImGuiIO* ptrImGuiIo) {
     if (ImGui::BeginMainMenuBar()) {
         // Begin always on main item
         if (ImGui::BeginMenu("UGF12")) {
-            
-            // TODO: General controle
-
-            // Logical seperator
-            ImGui::Separator();
+            // Console
+            if (ImGui::MenuItem("Console")) {
+                m_uiConsole.setEnable(TRUE);
+            }
 
             // Layers
-            ImGui::MenuItem("Layerstack");
-
-            // Settings 
-            ImGui::MenuItem("Settings");
+            if (ImGui::MenuItem("Layerstack")) {
+                m_uiLayerStack.setEnable(TRUE);
+            }
 
             // System Info
             if (ImGui::MenuItem("System Info")) {
-                m_ptrUISysInfo->setEnable(TRUE);
+                m_uISysInfo.setEnable(TRUE);
+            }
+
+            // Frameprofiler
+            if (ImGui::MenuItem("Profiler")) {
+                // Not supported
+            }
+
+            // Settings 
+            if(ImGui::MenuItem("Settings")) {
+                // Not supported
             }
 
             // Logical seperator
@@ -50,7 +55,7 @@ void UGF12::DebugUI::UI_MainMenue::draw(GxRenderIO::LayerStack::LayerFrameInfo* 
             }
 
             // VSYNC
-            if(ImGui::MenuItem("VSYNC", NULL, *m_ptrVsyncBool)) {
+            if(ImGui::MenuItem("VSync", NULL, *m_ptrVsyncBool)) {
                 *m_ptrVsyncBool = !*m_ptrVsyncBool;
             }
 
@@ -71,6 +76,8 @@ void UGF12::DebugUI::UI_MainMenue::draw(GxRenderIO::LayerStack::LayerFrameInfo* 
         ImGui::EndMainMenuBar();
         
         // Draw components
-        m_ptrUISysInfo->draw(ptrFrameInfo, ptrImGuiIo);
+        m_uiLayerStack.draw(ptrFrameInfo, ptrImGuiIo);
+        m_uISysInfo.draw(ptrFrameInfo, ptrImGuiIo);
+        m_uiConsole.draw(ptrFrameInfo, ptrImGuiIo);
     }
 }

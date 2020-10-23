@@ -136,7 +136,7 @@ static ImVec2           InputTextCalcTextSizeW(const ImWchar* text_begin, const 
 // - BulletTextV()
 //-------------------------------------------------------------------------
 
-void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags)
+void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags, float* ptrXsize)
 {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
@@ -227,9 +227,14 @@ void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags)
     else
     {
         const float wrap_width = wrap_enabled ? CalcWrapWidthForPos(window->DC.CursorPos, wrap_pos_x) : 0.0f;
-        const ImVec2 text_size = CalcTextSize(text_begin, text_end, false, wrap_width);
+        ImVec2 text_size = CalcTextSize(text_begin, text_end, false, wrap_width);
 
         ImRect bb(text_pos, text_pos + text_size);
+
+        if (ptrXsize) {
+            *ptrXsize = text_size.x;
+        }
+
         ItemSize(text_size, 0.0f);
         if (!ItemAdd(bb, 0))
             return;

@@ -1,6 +1,8 @@
 #include "pch.h"
 
 #include <UGF12/Util/CmdArgs.h>
+#include <UGF12/Util/Console/Console.h>
+#include <UGF12/Util/Console/WinConsole.h>
 #include <UGF12/Util/StrConverter.h>
 #include <UGF12/Util/Time/HPC.h>
 #include <UGF12/Util/Time/StopWatch.h>
@@ -103,14 +105,22 @@ class Impl : public GxRenderIO::LayerStack::ILayerImpl {
 /// <returns>Programm return code</returns>
 INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, LPWSTR _In_ cmdArgs, INT _In_ nCmdShow) {
 	try {
+		// Init console
+		GxUtil::Console::Init(1024 * 2, 0);
+
+		// Loding
+		LOG_INFO("Starting system initialization");
+
 		// Init COM
 		HRESULT hrCom = CoInitialize(NULL);
 		if (FAILED(hrCom)) {
+			LOG_ERROR("WinApi Init failed");
 			throw EXEPTION_HR(L"CoInitialize(...)", hrCom);
 		}
 
 		// Coinit safe
 		if (FAILED(hrCom = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL))) {
+			LOG_ERROR("WinApi Init secure failed");
 			throw EXEPTION_HR(L"CoInitializeSecurity(...)", hrCom);
 		}
 
@@ -128,8 +138,15 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		#ifdef _DEBUG
 			if (cmd.exitst(L"rtDebug") && cmd[L"rtDebug"] == L"true") {
 				debugLayer = TRUE;
+				LOG_DEBUG("D3D Debug layer enabled");
 			}
 		#endif
+		
+		std::string str = "Test 1234";
+		XXH64_hash_t seed = 0x2F8FAFAFAFAFAFAF;
+		XXH64_hash_t myHash = XXH64(str.c_str(), str.length(), seed);
+
+		LOG_INFO("Loding UGF12 engine");
 		GxDirect::XContext* ptrContext = new GxDirect::XContext(L"", -1, debugLayer);
 
 		// Create cmd que
@@ -145,29 +162,37 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		HICON ico = (HICON)LoadImage(hInstance, L"./icon.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_DEFAULTCOLOR);
 		ptrWindow->setIcon(ico);
 
-		// Show window
-		ptrWindow->setWindowVisability(TRUE);
-
 		// Create layerstack
 		GxRenderIO::LayerStack::Manager* ptrLayManager = new GxRenderIO::LayerStack::Manager(ptrContext, 24, 1920, 1080);
 
 		// Vsync
 		BOOL vsync = FALSE;
 
+		// App
+		LOG_INFO("Loading application");
+
 		// DEBUG
-		GxUtil::FS::FileSystem subSys(UGF12_APP_FS, L"data\\images");
+		GxUtil::FS::FileSystem subSys(UGF12_WORKING_FS, L"data\\images");
 
 		Impl imp(ptrContext);
-		UGF12::DebugUI::DebugUILayer debugUiLayer(ptrContext, ptrWindow, &vsync);
+		UGF12::DebugUI::DebugUILayer debugUiLayer(ptrContext, ptrLayManager, ptrWindow, &vsync);
 
 		ptrLayManager->insertLayer(&imp);
 		ptrLayManager->insertLayer(&debugUiLayer);
 		ptrWindow->setUILayer(&debugUiLayer);
-		// DEBUG END
 
+		// DEBUG END
 
 		// Finish layer stack manger
 		ptrLayManager->init(ptrCmdList);
+
+		
+		// Show window
+		LOG_INFO("Initialization done");
+		ptrWindow->setWindowVisability(TRUE);
+
+		// Console is no longer required (ImGui takes over)
+		GxUtil::WinConsole::getInstance()->enableConsole(FALSE);
 
 		// Do window loop
 		while (ptrWindow->isValid()) {
@@ -224,6 +249,9 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 
 		// Shutdown COM
 		CoUninitialize();
+
+		// Shudown console
+		GxUtil::Console::Shutdown();
 	}
 	catch (GxExeption ex) {
 		// Build error message
@@ -232,6 +260,16 @@ INT WINAPI wWinMain(HINSTANCE _In_ hInstance, HINSTANCE _In_opt_ hPrevInstance, 
 		wss << L"Error: " << GxUtil::StrConverter::TranslateHRESULT(ex.hr).c_str() << " (Code 0x" << std::hex << ex.hr << std::dec << L")" << std::endl;
 		wss << L"File: " << GxUtil::StrConverter::ConvertN2W(ex.file).c_str() << std::endl;
 		wss << L"Line: " << ex.line << std::endl;
+
+		if (GxUtil::Console::getInstance()) {
+			// Show console
+			GxUtil::WinConsole::getInstance()->enableConsole(TRUE);
+
+			// Log error
+			std::stringstream ss;
+			ss << "Exeption in application main loop" << std::endl << std::endl << GxUtil::StrConverter::ConvertW2N(wss.str()).c_str();
+			LOG_EXEPTION(ss.str().c_str());
+		}
 
 		// Show message
 		MessageBox(NULL, wss.str().c_str(), L"Exeption during application runtime", MB_OK | MB_ICONERROR);

@@ -17,6 +17,26 @@
 namespace GxRenderIO {
 	namespace LayerStack {
 		/// <summary>
+		/// Layer meta informations
+		/// </summary>
+		struct LayerMeta {
+			/// <summary>
+			/// Name of the layer
+			/// </summary>
+			std::wstring layerName;
+
+			/// <summary>
+			/// Layer enable flag
+			/// </summary>
+			BOOL layerEnabled;
+
+			/// <summary>
+			/// Frametime of the layer
+			/// </summary>
+			FLOAT layerFrametime;
+		};
+		
+		/// <summary>
 		/// Layer Stack manager
 		/// </summary>
 		class Manager {
@@ -93,6 +113,20 @@ namespace GxRenderIO {
 				/// <param name="enabled">If the layer should be enabled</param>
 				/// <returns>If layer could be en/disabled</returns>
 				BOOL setLayerEnabled(UINT index, BOOL enabled);
+
+				/// <summary>
+				/// Recive the layercount
+				/// </summary>
+				/// <returns>Amount of layers</returns>
+				UINT getLayerCount();
+
+				/// <summary>
+				/// Recive meta information about a layer
+				/// </summary>
+				/// <param name="index">Index of the layer</param>
+				/// <param name="ptrLayerMeta">Pointer to layer</param>
+				/// <returns>If succeded</returns>
+				BOOL getLayerMeta(UINT index, LayerMeta* ptrLayerMeta);
 
 				// Delee unsupported
 				Manager(const Manager&) = delete;

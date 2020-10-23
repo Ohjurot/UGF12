@@ -110,12 +110,23 @@ DWORD GxRenderIO::LayerStack::Layer::_internalThreadProc() {
 
 			// Execute work
 			if (m_ptrImpl->getLayerEnableState()) {
+				// Start timing
+				#if !defined(SHIPPING)
+				m_workerPayload.ptr()->layerWatch.reset();
+				m_workerPayload.ptr()->layerWatch.start();
+				#endif
+
 				m_ptrImpl->draw(ptrInfo, &proxy, ptrBuffer);
 
 				// Check if execute is required
 				if (proxy.isDirty()) {
 					proxy.execute();
 				}
+
+				// Stop timing
+				#if !defined(SHIPPING)
+				m_workerPayload.ptr()->layerWatch.stop();
+				#endif
 			}
 
 			// Signal completion
@@ -170,6 +181,9 @@ void GxRenderIO::LayerStack::Layer::waitForFrame() {
 		// Pause
 		_mm_pause();
 	}
+
+	// Copy frametime
+	m_fLastFrameTime = m_workerPayload.ptr()->layerWatch.getElapsedMs();
 }
 
 BOOL GxRenderIO::LayerStack::Layer::setEnable(BOOL enable) {
@@ -187,6 +201,14 @@ void GxRenderIO::LayerStack::Layer::resize(UINT width, UINT height){
 	m_ptrImpl->onResourceChange(UGF12_RESOURCE_TYPE_LAYER_FRAMEBUFFER, 0, &m_framebuffer);
 }
 
+std::wstring GxRenderIO::LayerStack::Layer::getLayerName() {
+	return std::wstring(m_ptrImpl->layer_name);
+}
+
 BOOL GxRenderIO::LayerStack::Layer::getEnabled() {
 	return m_ptrImpl->getLayerEnableState();
+}
+
+FLOAT GxRenderIO::LayerStack::Layer::getLastFrameTime() {
+	return m_fLastFrameTime;
 }

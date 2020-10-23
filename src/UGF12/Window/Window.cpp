@@ -14,7 +14,7 @@ GxWindow::Window::Window(std::wstring title, UINT width, UINT height) {
 	
 	// Create window
 	m_hWindow = CreateWindowEx(
-		NULL,
+		WS_EX_APPWINDOW,
 		GxWindow::WndClass::getClassName(),
 		title.c_str(),
 		WS_BORDER | WS_OVERLAPPED | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
@@ -32,6 +32,8 @@ GxWindow::Window::Window(std::wstring title, UINT width, UINT height) {
 	if (m_hWindow == NULL) {
 		throw EXEPTION_HR(L"CreateWindowEx(...)", GetLastError());
 	}
+
+	SetForegroundWindow(m_hWindow);
 }
 
 GxWindow::Window::~Window() {

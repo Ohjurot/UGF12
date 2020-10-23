@@ -31,10 +31,11 @@ namespace UGF12 {
 				/// Create debug layer
 				/// </summary>
 				/// <param name="ptrContext">Pointe to context</param>
+				/// <param name="ptrManager">Pointer to layerstack manager</param>
 				/// <param name="ptrWindow">Pointe to window</param>
 				/// <param name="vsyncPtr">Pointer to the vsync bool</param>
 				/// <param name="visible">If the layer should be visible</param>
-				DebugUILayer(GxDirect::XContext* ptrContext, GxDirect::XWindow* ptrWindow, BOOL* vsyncPtr, BOOL visible = TRUE);
+				DebugUILayer(GxDirect::XContext* ptrContext, GxRenderIO::LayerStack::Manager* ptrManger, GxDirect::XWindow* ptrWindow, BOOL* vsyncPtr, BOOL visible = TRUE);
 
 				/// <summary>
 				/// Construct
@@ -90,6 +91,11 @@ namespace UGF12 {
 				/// Reference to context
 				/// </summary>
 				GxDirect::XContext* m_ptrContext;
+
+				/// <summary>
+				/// Pointer to layerstack manager
+				/// </summary>
+				GxRenderIO::LayerStack::Manager* m_ptrManger;
 
 				/// <summary>
 				/// Handle of target window

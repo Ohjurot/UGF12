@@ -42,7 +42,6 @@ namespace GxUtil {
 			/// <returns>If start is required</returns>
 			BOOL requireStart() {
 				return (m_flagStart == 1);
-				// return m_flagStart.load();
 			}
 
 			/// <summary>

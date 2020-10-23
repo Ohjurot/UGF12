@@ -17,7 +17,7 @@ namespace UGF12 {
 	/// <summary>
 	/// A File is UINT64 id value
 	/// </summary>
-	typedef UINT64 File;
+	typedef UINT64 HFile;
 }
 
 namespace GxUtil {
@@ -33,20 +33,20 @@ namespace GxUtil {
 				/// <param name="path"Path to the file></param>
 				/// <param name="openFlags">Flags for opening the file UGF12_FILE_OPEN_XXXXX</param>
 				/// <returns>Handle to file</returns>
-				virtual UGF12::File openFile(LPCWSTR path, WORD openFlags) = 0;
+				virtual UGF12::HFile openFile(LPCWSTR path, DWORD openFlags) = 0;
 				
 				/// <summary>
 				/// Close a file
 				/// </summary>
 				/// <param name="file">Handle to file</param>
-				virtual void closeFile(UGF12::File file) = 0;
+				virtual void closeFile(UGF12::HFile file) = 0;
 
 				/// <summary>
 				/// Retrive the size of a file
 				/// </summary>
 				/// <param name="file">Handle to file</param>
 				/// <returns>Size of the file</returns>
-				virtual SIZE_T getFileSize(UGF12::File file) = 0;
+				virtual SIZE_T getFileSize(UGF12::HFile file) = 0;
 
 				/// <summary>
 				/// Set the file pointer
@@ -55,7 +55,7 @@ namespace GxUtil {
 				/// <param name="mode">Set mode UGF12_FILE_SET_XXXX</param>
 				/// <param name="value">Index to offset file</param>
 				/// <returns></returns>
-				virtual void setFilePointer(UGF12::File file, WORD mode, SIZE_T value) = 0;
+				virtual void setFilePointer(UGF12::HFile file, WORD mode, SIZE_T value) = 0;
 
 				/// <summary>
 				/// Read a file
@@ -64,7 +64,7 @@ namespace GxUtil {
 				/// <param name="numberOfBytesToRead">Number of bytes desired to read</param>
 				/// <param name="ptrBuffer">Pointer to read file to</param>
 				/// <returns>Bytes actualy read</returns>
-				virtual DWORD readFile(UGF12::File file, DWORD numberOfBytesToRead, void* ptrBuffer) = 0;
+				virtual DWORD readFile(UGF12::HFile file, DWORD numberOfBytesToRead, void* ptrBuffer) = 0;
 
 				/// <summary>
 				/// Write to a file
@@ -73,7 +73,7 @@ namespace GxUtil {
 				/// <param name="numerOfByteToWrite">Number of byte to be written</param>
 				/// <param name="ptrBuffer">Pointer to buffer</param>
 				/// <returns>Number of bytes written</returns>
-				virtual DWORD writeFile(UGF12::File file, DWORD numerOfByteToWrite, void* ptrBuffer) = 0;
+				virtual DWORD writeFile(UGF12::HFile file, DWORD numerOfByteToWrite, void* ptrBuffer) = 0;
 		};
 	}
 }

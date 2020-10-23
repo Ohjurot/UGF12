@@ -183,6 +183,24 @@
     <ClCompile Include="src\UGF12\Util\FileSystem\FSProvider.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\UGF12\Util\FileSystem\File.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_LayerStack.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Layers\DebugUI\Static\DUI_Console.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\microsoft\DirectXTec\DDSTextureLoader12.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\Console\WinConsole.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGF12\Util\Console\Console.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\UGF12\Util\CmdArgs.h">
@@ -357,6 +375,27 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\UGF12\Util\FileSystem\FSProvider.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\FileSystem\File.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_LayerStack.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Layers\DebugUI\Static\DUI_Console.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\microsoft\DirectXTec\DDSTextureLoader12.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\Console\WinConsole.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UGF12\Util\Console\Console.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\xxHash\include\xxhash.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

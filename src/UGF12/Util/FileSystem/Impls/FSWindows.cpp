@@ -8,7 +8,7 @@ GxUtil::FS::IFileSystemImpl* GxUtil::FS::FS_Windows::getInstance() {
     return &s_instance;
 }
 
-UGF12::File GxUtil::FS::FS_Windows::openFile(LPCWSTR path, WORD openFlags) {
+UGF12::HFile GxUtil::FS::FS_Windows::openFile(LPCWSTR path, DWORD openFlags) {
     // Access mode
     DWORD accessMode = 0x0;
     if (openFlags & UGF12_FILE_OPEN_READ) {
@@ -39,15 +39,15 @@ UGF12::File GxUtil::FS::FS_Windows::openFile(LPCWSTR path, WORD openFlags) {
     }
 
     // Return file (interpreted as uint)
-    return (UGF12::File)hFile;
+    return (UGF12::HFile)hFile;
 }
 
-void GxUtil::FS::FS_Windows::closeFile(UGF12::File file) {
+void GxUtil::FS::FS_Windows::closeFile(UGF12::HFile file) {
     // Close handle
     CloseHandle((HANDLE)file);
 }
 
-SIZE_T GxUtil::FS::FS_Windows::getFileSize(UGF12::File file) {
+SIZE_T GxUtil::FS::FS_Windows::getFileSize(UGF12::HFile file) {
     // Get file size
     LARGE_INTEGER fileSize;
     fileSize.LowPart = GetFileSize((HANDLE)file, (DWORD*)&fileSize.HighPart);
@@ -56,7 +56,7 @@ SIZE_T GxUtil::FS::FS_Windows::getFileSize(UGF12::File file) {
     return fileSize.QuadPart;
 }
 
-void GxUtil::FS::FS_Windows::setFilePointer(UGF12::File file, WORD mode, SIZE_T value) {
+void GxUtil::FS::FS_Windows::setFilePointer(UGF12::HFile file, WORD mode, SIZE_T value) {
     // Insert into large int
     LARGE_INTEGER moveDistance;
     moveDistance.QuadPart = value;
@@ -65,7 +65,7 @@ void GxUtil::FS::FS_Windows::setFilePointer(UGF12::File file, WORD mode, SIZE_T 
     SetFilePointer((HANDLE)file, moveDistance.LowPart, &moveDistance.HighPart, mode);
 }
 
-DWORD GxUtil::FS::FS_Windows::readFile(UGF12::File file, DWORD numberOfBytesToRead, void* ptrBuffer) {
+DWORD GxUtil::FS::FS_Windows::readFile(UGF12::HFile file, DWORD numberOfBytesToRead, void* ptrBuffer) {
     // Read file and store read amount
     DWORD read = 0;
     if (ReadFile((HANDLE)file, ptrBuffer, numberOfBytesToRead, &read, NULL)) {
@@ -77,7 +77,7 @@ DWORD GxUtil::FS::FS_Windows::readFile(UGF12::File file, DWORD numberOfBytesToRe
     return 0;
 }
 
-DWORD GxUtil::FS::FS_Windows::writeFile(UGF12::File file, DWORD numerOfByteToWrite, void* ptrBuffer) {
+DWORD GxUtil::FS::FS_Windows::writeFile(UGF12::HFile file, DWORD numerOfByteToWrite, void* ptrBuffer) {
     // Write file and store write amount
     DWORD written = 0;
     if (WriteFile((HANDLE)file, ptrBuffer, numerOfByteToWrite, &written, NULL)) {

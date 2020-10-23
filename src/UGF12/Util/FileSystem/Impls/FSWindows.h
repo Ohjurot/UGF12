@@ -23,20 +23,20 @@ namespace GxUtil {
 				/// <param name="path"Path to the file></param>
 				/// <param name="openFlags">Flags for opening the file UGF12_FILE_OPEN_XXXXX</param>
 				/// <returns>Handle to file</returns>
-				UGF12::File openFile(LPCWSTR path, WORD openFlags);
+				UGF12::HFile openFile(LPCWSTR path, DWORD openFlags);
 
 				/// <summary>
 				/// Close a file
 				/// </summary>
 				/// <param name="file">Handle to file</param>
-				void closeFile(UGF12::File file);
+				void closeFile(UGF12::HFile file);
 
 				/// <summary>
 				/// Retrive the size of a file
 				/// </summary>
 				/// <param name="file">Handle to file</param>
 				/// <returns>Size of the file</returns>
-				SIZE_T getFileSize(UGF12::File file);
+				SIZE_T getFileSize(UGF12::HFile file);
 
 				/// <summary>
 				/// Set the file pointer
@@ -45,7 +45,7 @@ namespace GxUtil {
 				/// <param name="mode">Set mode UGF12_FILE_SET_XXXX</param>
 				/// <param name="value">Index to offset file</param>
 				/// <returns></returns>
-				void setFilePointer(UGF12::File file, WORD mode, SIZE_T value);
+				void setFilePointer(UGF12::HFile file, WORD mode, SIZE_T value);
 
 				/// <summary>
 				/// Read a file
@@ -54,7 +54,7 @@ namespace GxUtil {
 				/// <param name="numberOfBytesToRead">Number of bytes desired to read</param>
 				/// <param name="ptrBuffer">Pointer to read file to</param>
 				/// <returns>Bytes actualy read</returns>
-				DWORD readFile(UGF12::File file, DWORD numberOfBytesToRead, void* ptrBuffer);
+				DWORD readFile(UGF12::HFile file, DWORD numberOfBytesToRead, void* ptrBuffer);
 
 				/// <summary>
 				/// Write to a file
@@ -63,7 +63,7 @@ namespace GxUtil {
 				/// <param name="numerOfByteToWrite">Number of byte to be written</param>
 				/// <param name="ptrBuffer">Pointer to buffer</param>
 				/// <returns>Number of bytes written</returns>
-				DWORD writeFile(UGF12::File file, DWORD numerOfByteToWrite, void* ptrBuffer);
+				DWORD writeFile(UGF12::HFile file, DWORD numerOfByteToWrite, void* ptrBuffer);
 
 			private:
 				/// <summary>

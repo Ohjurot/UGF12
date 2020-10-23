@@ -333,6 +333,25 @@ BOOL GxRenderIO::LayerStack::Manager::setLayerEnabled(UINT index, BOOL enabled){
 	return m_ptrsLayers[index]->setEnable(enabled);
 }
 
+UINT GxRenderIO::LayerStack::Manager::getLayerCount() {
+	return m_uiLayersUsed;
+}
+
+BOOL GxRenderIO::LayerStack::Manager::getLayerMeta(UINT index, LayerMeta* ptrLayerMeta) {
+	// Return if index is out of range
+	if (index >= m_uiLayersUsed) {
+		return FALSE;
+	}
+
+	// Fill layer info
+	ptrLayerMeta->layerName = m_ptrsLayers[index]->getLayerName();
+	ptrLayerMeta->layerEnabled = m_ptrsLayers[index]->getEnabled();
+	ptrLayerMeta->layerFrametime = m_ptrsLayers[index]->getLastFrameTime();
+
+	// OK
+	return TRUE;
+}
+
 void GxRenderIO::LayerStack::Manager::fillDescHeaps(){
 	// Create handle to heap start
 	D3D12_CPU_DESCRIPTOR_HANDLE handle = m_ptrDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
